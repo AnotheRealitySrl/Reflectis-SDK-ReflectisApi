@@ -1,119 +1,45 @@
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 using Reflectis.CreatorKit.Worlds.Analytics;
-using Reflectis.SDK.Authentication;
+using Reflectis.SDK.Core.ApiSystem;
 using Reflectis.SDK.Core.SystemFramework;
 using Reflectis.SDK.Core.Utilities;
-using Reflectis.SDK.Core.WebSocket;
 using Reflectis.SDK.DataAccess;
 using Reflectis.SDK.DataAccessLayer;
 using Reflectis.SDK.Http;
-using Reflectis.SDK.TenantConfiguration;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 using UnityEngine;
 using UnityEngine.Networking;
 
 using static HttpSystem;
+using static Reflectis.SDK.Core.Authentication.IAuthenticationSystem;
 
 namespace Reflectis.DataAccess
 {
     [CreateAssetMenu(menuName = "AnotheReality/Systems/ReflectisDataAccessSystem", fileName = "ReflectisDataAccessSystemConfig")]
-    public class ReflectisDataAccessSystem : BaseSystem
+    public class ReflectisDataAccessSystem : ApiSystemBase
     {
-        #region Inspector variables
-
-        [Header("Tenant configuration")]
-        [SerializeField] private string appId;
-        [SerializeField] private string appSecret;
-
-        [Header("Profile API settings")]
-        [SerializeField] private bool allowUntrustedServers;
-
-        #endregion
-
         #region Private variables
 
-        private HttpSystem httpSystem;
-
         private const string app = "Unity";
-
-        public Uri apiBaseUrl;
-        private string version;
-
-        private string realtimeBaseUrl;
-
-        private HmacCredential credential;
-
-        private AuthenticationSystem profileSystem;
-
-        private TimeSpan serverTimeOffset;
-
-        private string applicationUrl;
-        private string applicationApiUrl;
 
         #endregion
 
         #region Properties
 
-        public string ApplicationApiVersion { get; private set; }
+        public string ApiVersion => appConfig.ApiVersion;
 
-        public string AppId { get => appId; set => appId = value; }
-        public string AppSecret { get => appSecret; set => appSecret = value; }
-
-        private string OnlineUsersRealtimeApiUrl => $"{realtimeBaseUrl}/websocketconnection/info";
         #endregion
 
         #region Overrides
 
-        public override Task Init()
+        public override Task Init(params object[] data)
         {
             httpSystem = SM.GetSystem<HttpSystem>();
-
-            object test = SM.GetSystem<TenantConfigurationSystem>().TenantConfiguration.Config;
-            Debug.Log(test.GetType());
-
-            TenantConfig tenantConfiguration
-                = (SM.GetSystem<TenantConfigurationSystem>().TenantConfiguration.Config as JObject).ToObject<TenantConfig>();
-
-            applicationUrl = tenantConfiguration.ApplicationUrl;
-            applicationApiUrl = tenantConfiguration.ApplicationApiUrl;
-            ApplicationApiVersion = tenantConfiguration.ApplicationApiVersion;
-
-            if (string.IsNullOrEmpty(appId))
-            {
-                throw new ArgumentException("Missing appId", nameof(appId));
-            }
-
-            if (string.IsNullOrEmpty(appSecret))
-            {
-                throw new ArgumentException("Missing appSecret", nameof(appSecret));
-            }
-
-            apiBaseUrl = new Uri(applicationApiUrl);
-            version = ApplicationApiVersion ?? "1";
-
-            if (apiBaseUrl is null)
-            {
-                throw new ArgumentNullException(nameof(apiBaseUrl));
-            }
-
-            realtimeBaseUrl = tenantConfiguration.RealtimeApiUrl;
-
-            credential = new HmacCredential()
-            {
-                Id = new Guid(appId),
-                Secret = appSecret
-            };
-
-            this.appId = appId.ToString();
-
-            profileSystem = SM.GetSystem<AuthenticationSystem>();
 
             return base.Init();
         }
@@ -122,37 +48,7 @@ namespace Reflectis.DataAccess
 
         #region ApiServer
 
-        public Uri GetApplicationUri() => !string.IsNullOrEmpty(applicationUrl) ? new Uri(applicationUrl, UriKind.Absolute) : null;
-
-        #endregion
-
-        #region ApiServer
-
-        public async Task<bool> IsAlive()
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, "health", authentication: EAuthentication.None);
-            _ = await request.SendWebRequest();
-
-            bool success = request.result == UnityWebRequest.Result.Success;
-
-            if (success)
-            {
-                ApiResponse<DateTime?> serverTimeResponse = new(request.responseCode, request.error, request.downloadHandler.text);
-                DateTime? serverTime = serverTimeResponse.Content;
-
-                if (serverTime.HasValue)
-                {
-                    serverTimeOffset = DateTime.UtcNow - serverTime.Value;
-                    Debug.Log($"Server time: {serverTime.Value}, client time offset: {serverTimeOffset}");
-                }
-                else
-                {
-                    Debug.LogWarning($"Unable to retrieve server time");
-                }
-            }
-
-            return success;
-        }
+        public Uri GetApplicationUri() => !string.IsNullOrEmpty(appConfig.ApiBaseUrl) ? new Uri(appConfig.ApiBaseUrl, UriKind.Absolute) : null;
 
         #endregion
 
@@ -561,6 +457,7 @@ namespace Reflectis.DataAccess
             await request.SendWebRequest();
             return new ApiResponseArray<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
+
         public async Task<ApiResponseArray<SessionDTO>> GetMonthSessions(int worldId, int monthOffset)
         {
             Dictionary<string, string> queryParams = new()
@@ -603,8 +500,6 @@ namespace Reflectis.DataAccess
 
             return new ApiResponse<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
-
-
 
         public async Task<ApiResponse<SessionDTO>> ShareEventAsset(int worldId, int sessionId, int assetId)
         {
@@ -783,41 +678,6 @@ namespace Reflectis.DataAccess
 
         #endregion
 
-        #region Online Presence
-
-        public async Task<ApiResponse<string>> OnlineClientPing(OnlineUserDTO onlineInfo)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, "online/client/ping", body: JsonConvert.SerializeObject(onlineInfo));
-            await request.SendWebRequest();
-
-            ApiResponse<string> retval = new(request.responseCode, request.error, request.downloadHandler.text);
-
-            return retval;
-        }
-
-        public async Task<ApiResponse> OnlineUserPing(OnlineUserDTO onlineInfo)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, "online/ping", body: JsonConvert.SerializeObject(onlineInfo));
-            await request.SendWebRequest();
-
-            ApiResponse retval = new(request.responseCode, request.error, request.downloadHandler.text);
-
-            return retval;
-        }
-
-        public async Task<ApiResponse<List<OnlineUserDTO>>> GetOnlineUsers(int worldId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/online/users");
-            await request.SendWebRequest();
-
-            ApiResponse<List<OnlineUserDTO>> retval = new(request.responseCode, request.error, request.downloadHandler.text);
-
-            return retval;
-        }
-
-
-        #endregion
-
         #region Tags
 
 
@@ -975,11 +835,11 @@ namespace Reflectis.DataAccess
         public async Task<ApiResponseSearch<UserDTO>> SearchUser(int worldId, UserSearchCriteria userSearchCriteria, string order, int currentPage = 1, int pageSize = 2000000000)
         {
             Dictionary<string, string> queryParams = new()
-        {
-            { "currentPage" , currentPage.ToString()},
-            { "pageSize" , pageSize.ToString()},
-            { "order" , order},
-        };
+            {
+                { "currentPage" , currentPage.ToString()},
+                { "pageSize" , pageSize.ToString()},
+                { "order" , order},
+            };
             Debug.Log("user search " + JsonUtility.ToJson(userSearchCriteria));
             using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"search/users/{worldId}", body: JsonUtility.ToJson(userSearchCriteria), queryParams: queryParams);
             await request.SendWebRequest();
@@ -1045,535 +905,6 @@ namespace Reflectis.DataAccess
             var response = new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
             //Debug.LogError("New telemetry dto: " + JsonConvert.SerializeObject(dto));
         }
-
-        #endregion
-
-        #region HTTP management private methods
-
-        /// <summary>
-        /// Builds a UnityWebRequest, handling query parameters, authentication, and different body types.
-        /// </summary>
-        /// <param name="method">The HTTP method (GET, POST, PUT, etc.).</param>
-        /// <param name="endpoint">The API endpoint.</param>
-        /// <param name="queryParams">Query parameters for the request.</param>
-        /// <param name="requestBodyType">The type of body to send (None, RawString, RawBytes, MultipartFormData).</param>
-        /// <param name="body">The request body data, its type must match requestBodyType.</param>
-        /// <param name="authentication">Authentication flags (Bearer, Hmac).</param>
-        /// <param name="allowEmptyQueryValues">If true, includes query parameters with empty or null values.</param>
-        /// <returns>A configured UnityWebRequest.</returns>
-        /// <exception cref="Exception">Thrown if no valid token is found for Bearer authentication.</exception>
-        public async Task<UnityWebRequest> BuildRequest(string method,
-                                                        string endpoint,
-                                                        Dictionary<string, string> queryParams = null,
-                                                        HttpSystem.ERequestBodyType requestBodyType = HttpSystem.ERequestBodyType.RawString,
-                                                        object body = null, // Changed to object
-                                                        EAuthentication authentication = EAuthentication.BearerAndHmac,
-                                                        bool allowEmptyQueryValues = false)
-        {
-            queryParams ??= new Dictionary<string, string>();
-
-            // Filter null or empty query parameters
-            // Assuming string.IsNullOrWhiteSpace is used or an extension method is properly imported
-            queryParams = queryParams.Where(x => allowEmptyQueryValues ? x.Value != null : !string.IsNullOrWhiteSpace(x.Value))
-                                     .ToDictionary(x => x.Key, x => x.Value);
-            queryParams.Add("api-version", version);
-
-            (string timestamp, string hmac) = httpSystem.CalculateHmacHeader(credential, DateTime.UtcNow - serverTimeOffset);
-
-            Dictionary<string, string> headers = new()
-        {
-            { "AppId", appId },
-            { "Timestamp", timestamp }
-        };
-
-            // Removed the Content-Type: application/json here, as it's now handled by CreateHttpRequest
-            // or explicitly by the caller via headers.
-
-            if (authentication.HasFlag(EAuthentication.Bearer))
-            {
-                JwtToken token = profileSystem.UserTokens.FirstOrDefault(el => el.ApiLabel == SM.GetSystem<TenantConfigurationSystem>().TenantConfiguration.Label);
-                if (token == null || token.IsExpired(serverTimeOffset))
-                {
-                    await profileSystem.RefreshTokens();
-                    token = profileSystem.UserTokens.FirstOrDefault(el => el.ApiLabel == SM.GetSystem<TenantConfigurationSystem>().TenantConfiguration.Label);
-                }
-
-                if (token == null)
-                {
-                    throw new Exception("No valid token found!");
-                }
-
-                headers.Add("Authorization", $"Bearer {token.Bearer}");
-            }
-
-            if (authentication.HasFlag(EAuthentication.Hmac))
-            {
-                headers.Add("Hmac", hmac);
-            }
-
-            CertificateHandler certificateHandler = allowUntrustedServers ? new AcceptAllCertificates() : default;
-
-            // --- Use the new CreateHttpRequest ---
-            UnityWebRequest request = httpSystem.CreateHttpRequest(
-                method,
-                $"{apiBaseUrl}{endpoint}",
-                requestBodyType, // Pass the new enum
-                body,            // Pass the object body directly
-                queryParams,
-                headers,
-                certificateHandler);
-
-            // No need for separate header application loop here, as CreateHttpRequest handles it
-            // and its internal logic decides if Content-Type should be set/overridden.
-
-            return request;
-        }
-
-        // Retain this method if it's used elsewhere, otherwise it's redundant with HttpSystem.AddQueryString
-        private string BuildQueryParams(Dictionary<string, string> queryParams)
-        {
-            if (queryParams == null || queryParams.Count == 0) return "";
-            var queryString = string.Join("&", queryParams.Select(kv => $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value)}"));
-            return $"?{queryString}";
-        }
-
-        #endregion HTTP management private methods
-
-        #region RealtimeOnlineUsers
-
-        /// <summary>
-        /// Realtime section
-        /// All responses are implemented using actions since we cannot use async methods in the websocket listener
-        /// because of concurrency issues in webGL listeners
-        /// </summary>
-
-
-        /// <param name="browserClientId"></param>
-        /// <param name="onConnectionEmbodied"> Action called when the connection has been embodied using the clientId as paramenter</param>
-        /// <param name="onOnlinePresenceUpdate"></param>
-        public void EmbodyConnection(string browserClientId, Action onConnectionEmbodied, Action onError)
-        {
-            Action<RealtimeResponseDTO> onResponseReceived = (response) =>
-            {
-                if (response.IsSuccess)
-                {
-                    onConnectionEmbodied();
-                }
-                else
-                {
-                    onError();
-                    Debug.LogError($"Error registering to worlds CCU: {response.Content}");
-                }
-            };
-            SendRequestToReflectisRealtime(ERealtimeOnlineUsersMessageKey.EmbodyUserConnection, browserClientId, onResponseReceived);
-        }
-
-
-        /// <summary>
-        /// Register to receive updates on the online users per world
-        /// </summary>
-        /// <param name="onWorldCCUUpdate"></param>
-        public void RegisterToWorldsCCU(Action<List<WorldOnlineUsersCountDTO>> onWorldCCUUpdate)
-        {
-            Action<object> onUpdate = (response) =>
-            {
-                onWorldCCUUpdate(JsonConvert.DeserializeObject<List<WorldOnlineUsersCountDTO>>(response.ToString()));
-            };
-            OpenOnlineUsersChannel(ERealtimeOnlineUsersMessageKey.UsersCountPerWorld, null, onUpdate);
-        }
-
-        public void DisconnectFromOnlineUsersPerWorld()
-        {
-            CloseOnlineUsersChannel(ERealtimeOnlineUsersMessageKey.UsersCountPerWorld, null);
-        }
-
-        #region Join/Leave World
-
-        public void JoinWorld(int worldId, int eventId, Action<int> onWorldJoined)
-        {
-            Action<RealtimeResponseDTO> onResponseReceived = (response) =>
-            {
-                if (response.IsSuccess)
-                {
-                    int joinWorld = JsonConvert.DeserializeObject<int>(response.Content.ToString());
-                    onWorldJoined(joinWorld);
-                }
-                else
-                {
-                    Debug.LogError($"Error on world join: {response.Content}");
-                }
-            };
-            PostJoinWorldDTO joinWorldDTO = new PostJoinWorldDTO()
-            {
-                SessionId = eventId,
-                WorldId = worldId,
-            };
-            SendRequestToReflectisRealtime(ERealtimeOnlineUsersMessageKey.JoinWorld, joinWorldDTO, onResponseReceived);
-        }
-
-        public void DisconnectFromWorld()
-        {
-            ClearOnlineRealtimeCallbacks();
-            SendTriggerToReflectisRealtime(ERealtimeOnlineUsersMessageKey.LeaveWorld, null);
-        }
-
-        #endregion
-
-        #region WorldOnlineUsers
-        public void RegisterToWorldData(int worldId, Action<OnlineUserDTO[]> onWorldDataUpdate)
-        {
-            Action<object> onUpdate = (response) =>
-            {
-                onWorldDataUpdate(JsonConvert.DeserializeObject<OnlineUserDTO[]>(response.ToString()));
-            };
-            OpenOnlineUsersChannel(ERealtimeOnlineUsersMessageKey.WorldMultiplayerUsers, worldId, onUpdate);
-        }
-
-        public void UnregisterFromWorldData()
-        {
-            CloseOnlineUsersChannel(ERealtimeOnlineUsersMessageKey.WorldMultiplayerUsers, null);
-        }
-
-        #endregion
-
-        #region JoinEvent
-
-        public void JoinEvent(int eventId, int? shardId, Action<int> onEventJoined, Action onFail)
-        {
-            Action<RealtimeResponseDTO> onResponseReceived = (response) =>
-            {
-                if (response.IsSuccess)
-                {
-                    int shard = JsonConvert.DeserializeObject<int>(response.Content.ToString());
-                    onEventJoined(shard);
-                }
-                else
-                {
-                    onFail();
-                }
-            };
-
-            PostJoinSessionDTO joinEventDTO = new PostJoinSessionDTO()
-            {
-                SessionIn = eventId,
-                ShardIn = shardId
-            };
-            SendRequestToReflectisRealtime(ERealtimeOnlineUsersMessageKey.JoinSession, joinEventDTO, onResponseReceived);
-        }
-
-        public void RegisterToSessionData(int eventId, Action<ShardDTO[]> onShardUpdate)
-        {
-            Action<object> onUpdate = (response) =>
-            {
-                onShardUpdate(JsonConvert.DeserializeObject<ShardDTO[]>(response.ToString()));
-            };
-            OpenOnlineUsersChannel(ERealtimeOnlineUsersMessageKey.SessionShardsInfo, eventId, onUpdate);
-        }
-
-        public void UnregisterFromSessionData(int eventId)
-        {
-            CloseOnlineUsersChannel(ERealtimeOnlineUsersMessageKey.SessionShardsInfo, eventId);
-        }
-
-        #endregion
-
-
-        public async Task KickPlayer(string kickedUserSession)
-        {
-            bool kicked = false;
-            Action<RealtimeResponseDTO> onResponseReceived = (response) =>
-            {
-                if (!response.IsSuccess)
-                {
-                    Debug.LogError($"Error kicking player: {response.Content}");
-                }
-                kicked = true;
-            };
-            SendRequestToReflectisRealtime(ERealtimeOnlineUsersMessageKey.KickPlayer, kickedUserSession, null);
-            while (!kicked)
-            {
-                await Task.Yield();
-            }
-        }
-
-
-
-        #region Shard
-        public async Task EnableShard(bool enable)
-        {
-            bool responseReceived = false;
-            Action<RealtimeResponseDTO> onResponseReceived = (x) =>
-            {
-                responseReceived = true;
-            };
-            bool isClose = !enable;
-            SendRequestToReflectisRealtime(ERealtimeOnlineUsersMessageKey.UpdateShardStatus, isClose, onResponseReceived);
-            while (!responseReceived)
-            {
-                await Task.Yield();
-            }
-        }
-
-        #endregion
-
-        #region Channel management
-        private void SendTriggerToReflectisRealtime(ERealtimeOnlineUsersMessageKey key, object data)
-        {
-            string message = JsonConvert.SerializeObject(new RealtimeOnlineUsersMessage()
-            {
-                Type = ERealtimeOnlineUsersMessageType.Trigger,
-                Key = key,
-                Value = data
-            });
-            SendMessageToRealtimeWebSocket(message);
-        }
-
-        #region Request/Response management
-        private Action<ERealtimeOnlineUsersMessageKey, RealtimeResponseDTO> onOnlineUsersRealtimeResponseReceived;
-
-        private void SendRequestToReflectisRealtime(ERealtimeOnlineUsersMessageKey key, object data, Action<RealtimeResponseDTO> onResponseReceived)
-        {
-            string message = JsonConvert.SerializeObject(new RealtimeOnlineUsersMessage()
-            {
-                Type = ERealtimeOnlineUsersMessageType.Request,
-                Key = key,
-                Value = data
-            });
-
-            if (onResponseReceived != null)
-            {
-                Action<ERealtimeOnlineUsersMessageKey, RealtimeResponseDTO> callback = null;
-
-                callback = (responseKey, value) =>
-                {
-                    if (responseKey == key)
-                    {
-                        onResponseReceived(value);
-                        onOnlineUsersRealtimeResponseReceived -= callback;
-                    }
-                };
-
-                onOnlineUsersRealtimeResponseReceived += callback;
-            }
-            SendMessageToRealtimeWebSocket(message);
-        }
-        #endregion
-
-
-
-        private Dictionary<ERealtimeOnlineUsersMessageKey, Action<object>> onlineUsersRealtimeChannels = new Dictionary<ERealtimeOnlineUsersMessageKey, Action<object>>();
-
-        private void OpenOnlineUsersChannel(ERealtimeOnlineUsersMessageKey key, object data, Action<object> onMessageReceived)
-        {
-            string message = JsonConvert.SerializeObject(new RealtimeOnlineUsersMessage()
-            {
-                Type = ERealtimeOnlineUsersMessageType.Subscribe,
-                Key = key,
-                Value = data
-            });
-
-            if (onMessageReceived != null)
-            {
-                Action<ERealtimeOnlineUsersMessageKey, RealtimeResponseDTO> callback = null;
-                //First we subscribe to dto listener to wait for the first dto
-                //Then we remove the listener and open the channel that will receive broadcast messages
-                callback = (responseKey, value) =>
-                {
-                    if (responseKey == key)
-                    {
-                        if (value.IsSuccess)
-                        {
-                            onMessageReceived(value.Content);
-                            onlineUsersRealtimeChannels.TryAdd(key, onMessageReceived);
-                            onOnlineUsersRealtimeResponseReceived -= callback;
-                        }
-                        else
-                        {
-                            Debug.LogError($"Error subscribing to channel {key}: {value.Content}");
-                        }
-                    }
-                };
-
-                onOnlineUsersRealtimeResponseReceived += callback;
-            }
-
-            SendMessageToRealtimeWebSocket(message);
-        }
-
-        private void CloseOnlineUsersChannel(ERealtimeOnlineUsersMessageKey key, object data)
-        {
-            onlineUsersRealtimeChannels.Remove(key);
-
-            string message = JsonConvert.SerializeObject(new RealtimeOnlineUsersMessage()
-            {
-                Type = ERealtimeOnlineUsersMessageType.Unsubscribe,
-                Key = key,
-                Value = data
-            });
-
-            SendMessageToRealtimeWebSocket(message);
-        }
-
-        private void SendMessageToRealtimeWebSocket(string message)
-        {
-            SM.GetSystem<IWebSocketSystem>().SendMessageAsync(OnlineUsersRealtimeApiUrl, message);
-            Debug.Log("<color=green>[Sent message to Reflectis Realtime]: </color>" + message);
-        }
-
-        #endregion
-
-        #region Realtime Socket Management
-        private Action<ECloseConnectionReason> onOnlineUsersCloseSession;
-
-        private Action<Handshake> onUserSessionStarted;
-
-        private Action<object> onUserKick;
-
-        private Action onDoubleSessionLogin;
-
-        private void ClearOnlineRealtimeCallbacks()
-        {
-            onOnlineUsersRealtimeResponseReceived = null;
-            onlineUsersRealtimeChannels.Clear();
-            onOnlineUsersCloseSession = null;
-            onUserSessionStarted = null;
-            onUserKick = null;
-        }
-
-        /// <summary>
-        /// Start session with Reflectis Realtime API
-        /// on session start the onSessionStarted action is called with the clientId as parameter
-        /// </summary>
-        /// <param name="onSessionStarted"></param>
-        public async void ConnectToReflectisRealtime(Action<Handshake> onSessionStarted, Action<ECloseConnectionReason> onDisconnect, Action<object> onKick, Action onDoubleSessionLogin)
-        {
-            var worldCCUListener = new BaseWebSocketListener();
-            worldCCUListener.onMessageReceived += OnRealtimeMessageReceived;
-            worldCCUListener.onClose += () =>
-            {
-                if (Application.isPlaying)
-                {
-                    onOnlineUsersCloseSession?.Invoke(ECloseConnectionReason.ServerDisconnection);
-                }
-            };
-
-            Action<ECloseConnectionReason> onDisconnectAndRemove = null;
-            onDisconnectAndRemove = (reason) =>
-            {
-                onDisconnect?.Invoke(reason);
-                onOnlineUsersCloseSession -= onDisconnectAndRemove;
-                ClearOnlineRealtimeCallbacks();
-            };
-
-            onOnlineUsersCloseSession += onDisconnectAndRemove;
-
-            this.onDoubleSessionLogin += onDoubleSessionLogin;
-
-            onUserKick += onKick;
-            IWebSocketSystem webSocketSystem = SM.GetSystem<IWebSocketSystem>();
-            if (webSocketSystem != null)
-            {
-                webSocketSystem.AddListener(OnlineUsersRealtimeApiUrl, worldCCUListener);
-
-                void onSessionStartedAndRemove(Handshake x)
-                {
-                    onSessionStarted?.Invoke(x);
-                    onUserSessionStarted -= onSessionStartedAndRemove;
-                }
-
-                onUserSessionStarted += onSessionStartedAndRemove;
-
-                await ConnectToWebSocket(OnlineUsersRealtimeApiUrl, (x) =>
-                {
-                    onDisconnect(ECloseConnectionReason.ServerDisconnection);
-                    Debug.LogError("Cannot connect to websocket " + OnlineUsersRealtimeApiUrl + "! \nMessage: " + x);
-                });
-            }
-        }
-        public async Task DisconnectFromReflectisRealtime()
-        {
-            //Debug.LogError("Disconnect");
-
-            //SendTriggerToReflectisRealtime(ERealtimeOnlineUsersMessageKey.EndUserSession, null);
-
-            ClearOnlineRealtimeCallbacks();
-            await SM.GetSystem<IWebSocketSystem>()?.DisconnectAsync(OnlineUsersRealtimeApiUrl);
-        }
-
-        private void OnRealtimeMessageReceived(string obj)
-        {
-            Debug.Log("<color=yellow>[Received message from Reflectis Realtime]: </color>" + obj);
-            RealtimeOnlineUsersMessage realtimeOnlineUsersMessage = JsonConvert.DeserializeObject<RealtimeOnlineUsersMessage>(obj);
-
-            switch (realtimeOnlineUsersMessage.Type)
-            {
-                case ERealtimeOnlineUsersMessageType.Response:
-                    onOnlineUsersRealtimeResponseReceived?.Invoke(realtimeOnlineUsersMessage.Key, JsonConvert.DeserializeObject<RealtimeResponseDTO>(realtimeOnlineUsersMessage.Value.ToString()));
-                    break;
-                case ERealtimeOnlineUsersMessageType.Request:
-                    Debug.Log("Server request: " + realtimeOnlineUsersMessage.Key);
-                    break;
-                case ERealtimeOnlineUsersMessageType.Subscribe:
-                    Debug.LogError("Server sent a subscribed message: " + realtimeOnlineUsersMessage.Key);
-                    break;
-                case ERealtimeOnlineUsersMessageType.Broadcast:
-                    if (onlineUsersRealtimeChannels.ContainsKey(realtimeOnlineUsersMessage.Key))
-                    {
-                        onlineUsersRealtimeChannels[realtimeOnlineUsersMessage.Key]?.Invoke(realtimeOnlineUsersMessage.Value);
-                    }
-                    else
-                    {
-                        Debug.LogError("No action registered for broadcast message: " + realtimeOnlineUsersMessage.Key);
-                    }
-                    break;
-                case ERealtimeOnlineUsersMessageType.Unsubscribe:
-                    onlineUsersRealtimeChannels.Remove(realtimeOnlineUsersMessage.Key);
-                    break;
-                case ERealtimeOnlineUsersMessageType.Trigger:
-                    switch (realtimeOnlineUsersMessage.Key)
-                    {
-                        case ERealtimeOnlineUsersMessageKey.EndUserSession:
-                            if (Enum.TryParse(typeof(ECloseConnectionReason), realtimeOnlineUsersMessage.Value.ToString(), out object reason))
-                            {
-                                onOnlineUsersCloseSession?.Invoke((ECloseConnectionReason)reason);
-                            }
-                            break;
-                        case ERealtimeOnlineUsersMessageKey.Handshake:
-                            onUserSessionStarted?.Invoke(new Handshake() { ConnectionId = realtimeOnlineUsersMessage.Value.ToString() });
-                            break;
-                        case ERealtimeOnlineUsersMessageKey.Kicked:
-                            onUserKick?.Invoke(realtimeOnlineUsersMessage.Value);
-                            break;
-                        case ERealtimeOnlineUsersMessageKey.NewConnectionLogin:
-                            onDoubleSessionLogin?.Invoke();
-                            break;
-                    }
-                    break;
-            }
-        }
-        #endregion
-
-        #region SocketManagement
-
-        private async Task<bool> ConnectToWebSocket(string url, Action<string> onWebSocketError = null)
-        {
-            JwtToken token = SM.GetSystem<AuthenticationSystem>().UserTokens.FirstOrDefault(x => x.ApiLabel == SM.GetSystem<TenantConfigurationSystem>().TenantConfiguration.Label + "Realtime");
-            if (token == null)
-            {
-                throw new Exception("No token found for realtime API");
-            }
-
-            Dictionary<string, string> queryParams = new Dictionary<string, string>()
-            {
-                {
-                    "token",
-                    token.Bearer
-                }
-            };
-            return await SM.GetSystem<IWebSocketSystem>()?.ConnectAsync(url, queryParams);
-        }
-
-        #endregion
 
         #endregion
     }
