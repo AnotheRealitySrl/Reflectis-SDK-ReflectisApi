@@ -37,7 +37,7 @@ namespace Reflectis.DataAccess
 
         #region Overrides
 
-        public override Task Init(params object[] data)
+        public override Task Init()
         {
             httpSystem = SM.GetSystem<HttpSystem>();
 
