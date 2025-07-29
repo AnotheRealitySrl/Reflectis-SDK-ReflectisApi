@@ -907,5 +907,41 @@ namespace Reflectis.DataAccess
         }
 
         #endregion
+
+        #region Save Data
+        public async Task<ApiResponse<CustomType>> LoadSaveData(int worldId)
+        {
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/users/my/data/all");
+            await request.SendWebRequest();
+            return new ApiResponse<CustomType>(request.responseCode, request.error, request.downloadHandler.text);
+        }
+
+        public async Task<ApiResponse<CustomType>> SetMySaveData(int id, string key, object data)
+        {
+            CustomType customType = new CustomType();
+            customType.Fields[key] = data;
+
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{id}/users/my/data",
+                body: JsonConvert.SerializeObject(customType));
+
+            await request.SendWebRequest();
+            return new ApiResponse<CustomType>(request.responseCode, request.error, request.downloadHandler.text);
+        }
+
+        public async Task<ApiResponse<CustomType>> DeleteMySaveData(int id, List<string> keys)
+        {
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbDELETE, $"worlds/{id}/users/my/data", body: JsonConvert.SerializeObject(keys));
+            await request.SendWebRequest();
+            return new ApiResponse<CustomType>(request.responseCode, request.error, request.downloadHandler.text);
+        }
+
+        public async Task<ApiResponse<CustomType>> DeleteAllMySaveData(int id)
+        {
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbDELETE, $"worlds/{id}/users/my/data/all");
+            await request.SendWebRequest();
+            return new ApiResponse<CustomType>(request.responseCode, request.error, request.downloadHandler.text);
+        }
+        #endregion
+
     }
 }
