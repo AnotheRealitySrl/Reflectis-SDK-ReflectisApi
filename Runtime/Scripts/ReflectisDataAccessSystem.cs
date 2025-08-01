@@ -31,7 +31,7 @@ namespace Reflectis.DataAccess
 
         #region Properties
 
-        public string ApiVersion => appConfig.ApiVersion;
+        public string ApiVersion => apiConfig.ApiVersion;
 
         #endregion
 
@@ -48,7 +48,7 @@ namespace Reflectis.DataAccess
 
         #region ApiServer
 
-        public Uri GetApplicationUri() => !string.IsNullOrEmpty(appConfig.ApiBaseUrl) ? new Uri(appConfig.ApiBaseUrl, UriKind.Absolute) : null;
+        public Uri GetApplicationUri() => !string.IsNullOrEmpty(apiConfig.ApiBaseUrl) ? new Uri(apiConfig.ApiBaseUrl, UriKind.Absolute) : null;
 
         #endregion
 
