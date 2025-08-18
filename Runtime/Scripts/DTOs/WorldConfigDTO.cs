@@ -11,15 +11,19 @@ namespace Reflectis.SDK.ReflectisApi
 
         [SerializeField] private string videoChatAppId;
         [SerializeField] private string gptAppId;
-        [SerializeField] private bool allowDoubleUserPresence;
-        [SerializeField] private bool showFullNickname;
         [SerializeField] private int maxShardCapacity = 20;
+        [SerializeField] private EWorldMode worldMode = EWorldMode.Catalog;
 
         public string VideoChatAppId => videoChatAppId;
         public string GptAppId => gptAppId;
-        public bool AllowDoubleUserPresence => allowDoubleUserPresence;
-        public bool ShowFullNickname => showFullNickname;
         public int MaxShardCapacity => maxShardCapacity;
+        public EWorldMode WorldMode { get => worldMode; set => worldMode = value; }
+
+        public enum EWorldMode
+        {
+            Catalog,
+            Play
+        }
 
     }
 }
