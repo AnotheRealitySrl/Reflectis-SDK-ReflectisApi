@@ -948,5 +948,15 @@ namespace Reflectis.SDK.ReflectisApi
         }
         #endregion
 
+        #region Leaderboard
+        public async Task<ApiResponse> CreateLeaderboardRecord(int worldId, string leaderboardKey, float data)
+        {
+            LeaderboardRecordDTO record = new LeaderboardRecordDTO(leaderboardKey, data);
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/leaderboards/records", body: JsonConvert.SerializeObject(record));
+            await request.SendWebRequest();
+            return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
+        }
+        #endregion
+
     }
 }
