@@ -1,11 +1,8 @@
 using Newtonsoft.Json;
 
-using Reflectis.SDK.ReflectisApi;
 using Reflectis.SDK.Core.ApiSystem;
 using Reflectis.SDK.Core.SystemFramework;
 using Reflectis.SDK.Core.Utilities;
-using Reflectis.SDK.ReflectisApi;
-using Reflectis.SDK.ReflectisApi;
 using Reflectis.SDK.Http;
 
 using System;
@@ -779,6 +776,14 @@ namespace Reflectis.SDK.ReflectisApi
 
             return new ApiResponseArray<CatalogDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
+
+        public async Task<ApiResponse<ExperienceDTO>> GetDefaultExperience(int worldId)
+        {
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/experiences/default");
+            await request.SendWebRequest();
+            return new ApiResponse<ExperienceDTO>(request.responseCode, request.error, request.downloadHandler.text);
+        }
+
         #endregion
 
         #region Users
