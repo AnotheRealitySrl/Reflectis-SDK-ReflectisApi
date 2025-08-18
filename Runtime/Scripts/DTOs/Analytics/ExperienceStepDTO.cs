@@ -1,4 +1,4 @@
-namespace Reflectis.CreatorKit.Worlds.Analytics
+namespace Reflectis.SDK.ReflectisApi
 {
     public abstract class ExperienceStepDTO : ExperienceAnalyticDTO
     {

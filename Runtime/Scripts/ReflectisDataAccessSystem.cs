@@ -1,11 +1,11 @@
 using Newtonsoft.Json;
 
-using Reflectis.CreatorKit.Worlds.Analytics;
+using Reflectis.SDK.ReflectisApi;
 using Reflectis.SDK.Core.ApiSystem;
 using Reflectis.SDK.Core.SystemFramework;
 using Reflectis.SDK.Core.Utilities;
-using Reflectis.SDK.DataAccess;
-using Reflectis.SDK.DataAccessLayer;
+using Reflectis.SDK.ReflectisApi;
+using Reflectis.SDK.ReflectisApi;
 using Reflectis.SDK.Http;
 
 using System;
@@ -18,7 +18,7 @@ using UnityEngine.Networking;
 using static HttpSystem;
 using static Reflectis.SDK.Core.Authentication.IAuthenticationSystem;
 
-namespace Reflectis.DataAccess
+namespace Reflectis.SDK.ReflectisApi
 {
     [CreateAssetMenu(menuName = "AnotheReality/Systems/ReflectisDataAccessSystem", fileName = "ReflectisDataAccessSystemConfig")]
     public class ReflectisDataAccessSystem : ApiSystemBase

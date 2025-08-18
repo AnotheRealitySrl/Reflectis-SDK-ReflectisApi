@@ -1,6 +1,6 @@
 using System;
 
-namespace Reflectis.CreatorKit.Worlds.Analytics
+namespace Reflectis.SDK.ReflectisApi
 {
     [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
     public class SettableFieldAttribute : Attribute

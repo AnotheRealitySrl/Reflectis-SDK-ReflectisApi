@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Reflectis.CreatorKit.Worlds.Analytics
+namespace Reflectis.SDK.ReflectisApi
 {
     [Serializable]
     [Newtonsoft.Json.JsonObject(Newtonsoft.Json.MemberSerialization.Fields)]

@@ -1,4 +1,4 @@
-namespace Reflectis.CreatorKit.Worlds.Analytics
+namespace Reflectis.SDK.ReflectisApi
 {
     public class ExperienceJoinDTO : ExperienceAnalyticDTO
     {

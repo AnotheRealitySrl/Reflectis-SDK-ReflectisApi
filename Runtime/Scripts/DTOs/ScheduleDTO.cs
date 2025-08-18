@@ -2,7 +2,7 @@
 
 using UnityEngine;
 
-namespace Reflectis.SDK.DataAccess
+namespace Reflectis.SDK.ReflectisApi
 {
     [Serializable]
     public class ScheduleDTO

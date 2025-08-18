@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-namespace Reflectis.SDK.DataAccess
+namespace Reflectis.SDK.ReflectisApi
 {
     [Serializable]
     [Newtonsoft.Json.JsonObject(Newtonsoft.Json.MemberSerialization.Fields)]

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Reflectis.SDK.DataAccess
+namespace Reflectis.SDK.ReflectisApi
 {
     public class TagSearchCriteria
     {

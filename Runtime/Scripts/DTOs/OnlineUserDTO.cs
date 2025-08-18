@@ -3,7 +3,7 @@ using System;
 
 using UnityEngine;
 
-namespace Reflectis.SDK.DataAccess
+namespace Reflectis.SDK.ReflectisApi
 {
     [Serializable, JsonObject(MemberSerialization.Fields)]
     public class OnlineUserDTO

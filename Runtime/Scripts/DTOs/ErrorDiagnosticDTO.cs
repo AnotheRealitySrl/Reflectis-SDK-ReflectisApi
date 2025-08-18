@@ -2,7 +2,7 @@ using System;
 
 using UnityEngine;
 
-namespace Reflectis.SDK.DataAccessLayer
+namespace Reflectis.SDK.ReflectisApi
 {
     public class ErrorDiagnosticDTO
     {

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Reflectis.CreatorKit.Worlds.Analytics
+namespace Reflectis.SDK.ReflectisApi
 {
     public class AnalyticDTO
     {
