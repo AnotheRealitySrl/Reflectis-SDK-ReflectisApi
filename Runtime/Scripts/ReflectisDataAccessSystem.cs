@@ -47,6 +47,8 @@ namespace Reflectis.SDK.ReflectisApi
 
         public Uri GetApplicationUri() => !string.IsNullOrEmpty(apiConfig.ApiBaseUrl) ? new Uri(apiConfig.ApiBaseUrl, UriKind.Absolute) : null;
 
+        public int CacheId { get; set; } = -1;
+
         #endregion
 
         #region Assets
@@ -956,6 +958,22 @@ namespace Reflectis.SDK.ReflectisApi
             await request.SendWebRequest();
             return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
         }
+        #endregion
+
+        #region Overrides
+
+        protected override Dictionary<string, string> SetDefaultHeaders(params string[] values)
+        {
+            Dictionary<string, string> headers = base.SetDefaultHeaders(values);
+
+            if (CacheId > 0)
+            {
+                headers.Add("Cache-Id", CacheId.ToString());
+            }
+
+            return headers;
+        }
+
         #endregion
 
     }
