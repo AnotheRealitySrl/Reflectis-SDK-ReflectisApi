@@ -46,6 +46,7 @@ namespace Reflectis.SDK.ReflectisApi
         {
             Core,
             Authored,
+            ExternalApp
         }
         public enum EExperienceStatusOption
         {
