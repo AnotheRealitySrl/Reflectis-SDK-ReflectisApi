@@ -15,10 +15,11 @@ namespace Reflectis.SDK.ReflectisApi
         [SerializeField] private string fileName;
         [SerializeField] private string thumbnailUri;
         [SerializeField] private string localizationUri;
-        [SerializeField] private string catalog;
+        [SerializeField] private CatalogDTO catalogInfo;
         [SerializeField] private string description;
         [SerializeField] private EStatusOption status;
         [SerializeField] private int worldId;
+        [SerializeField] private bool isTenant;
         [SerializeField] private int ownerUserId;
         [SerializeField] private string[] platforms;
         [SerializeField] private TagDTO[] tags = new TagDTO[0];
@@ -29,16 +30,16 @@ namespace Reflectis.SDK.ReflectisApi
         public DateTime LastUpdate => lastUpdate;
         public string Label => label;
         public string FileName => fileName;
-        public string Catalog => catalog;
+        public CatalogDTO Catalog => catalogInfo;
         public string Description => description;
         public EStatusOption Status => status;
         public int WorldId => worldId;
+        public bool IsTenant => isTenant;
         public int OwnerUserId => ownerUserId;
         public string[] Platforms => platforms;
         public string ThumbnailUri => thumbnailUri;
         public string LocalizationUri => localizationUri;
         public TagDTO[] Tags => tags;
-
         public bool Multiplayer { get => multiplayer; set => multiplayer = value; }
     }
 }
