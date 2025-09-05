@@ -389,6 +389,13 @@ namespace Reflectis.SDK.ReflectisApi
             return new ApiResponseArray<ExperienceDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
+        public async Task<ApiResponse<ExperienceDTO>> GetExperience(int worldId, int experienceId)
+        {
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/experiences/{experienceId}");
+            await request.SendWebRequest();
+            return new ApiResponse<ExperienceDTO>(request.responseCode, request.error, request.downloadHandler.text);
+        }
+
 
         public async Task<ApiResponse> DeleteExperience(int worldId, int expId)
         {
