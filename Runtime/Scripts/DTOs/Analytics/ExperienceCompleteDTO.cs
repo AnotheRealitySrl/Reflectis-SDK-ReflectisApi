@@ -1,5 +1,8 @@
+using System;
+
 namespace Reflectis.SDK.ReflectisApi
 {
+    [Serializable]
     public class ExperienceCompleteDTO : ExperienceAnalyticDTO
     {
         [SettableField]
