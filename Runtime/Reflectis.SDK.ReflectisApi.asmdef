@@ -1,0 +1,18 @@
+{
+    "name": "Reflectis.SDK.ReflectisApi",
+    "rootNamespace": "Reflectis.SDK.ReflectisApi",
+    "references": [
+        "GUID:ab59f74e483e1ee4595bfefea56493f2",
+        "GUID:fbebb77141d815e478836eb96f260865",
+        "GUID:34816162cec78d441991b5297a6a6410"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
