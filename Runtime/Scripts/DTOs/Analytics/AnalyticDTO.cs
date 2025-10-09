@@ -13,12 +13,11 @@ namespace Reflectis.SDK.ReflectisApi
 
         [SerializeField] private string locale;
 
-        [SerializeField] private string context;
 
         public EAnalyticVerb Verb { get => verb; set => verb = value; }
         public int SessionId { get => sessionId; set => sessionId = value; }
         public string Locale { get => locale; set => locale = value; }
-        public string Context { get => context; set => context = value; }
+        public string Context { get; set; }
         public XAPIStatement Statement { get => statement; set => statement = value; }
     }
 }
