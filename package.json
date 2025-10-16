@@ -1,7 +1,7 @@
 {
   "name": "com.anotherealitysrl.reflectis-sdk-reflectisapi",
   "displayName": "Reflectis-SDK-ReflectisApi",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "unity": "2020.1",
   "description": "Reflectis Reflectis API module",
   "keywords": [
