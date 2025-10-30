@@ -61,6 +61,68 @@ namespace Reflectis.SDK.ReflectisApi
             return new ApiResponse<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
+        public async Task<ApiResponseArray<FolderDTO>> GetWorldFolders(int worldId, string order = "name", bool? includeDetails = null, int currentPage = 1, int pageSize = 8)
+        {
+            Dictionary<string, string> queryParams = new()
+            {
+                { "currentPage" , currentPage.ToString()},
+                { "pageSize" , pageSize.ToString()},
+                { "order" , order},
+            };
+            if (includeDetails != null)
+            {
+                queryParams.Add("includeDetails", includeDetails.ToString().ToLower());
+            }
+
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/assets/folders", queryParams: queryParams);
+            await request.SendWebRequest();
+
+            int totalCount = 0;
+            if (request.GetResponseHeaders().TryGetValue("x-total-count", out var count))
+            {
+                totalCount = int.Parse(count.ToString());
+            }
+
+            return new ApiResponseArray<FolderDTO>(request.responseCode, request.error, request.downloadHandler.text, totalCount);
+        }
+
+        public async Task<ApiResponseArray<AssetDTO>> GetWorldAssets(int worldId, bool? buildSasContentUrl = null, bool? buildSasThumbnailUrl = null, int startItem = 1, int pageSize = 2000000000, string order = "label", string filterExtensions = null, string filterFolder = null)
+        {
+            Dictionary<string, string> queryParams = new()
+            {
+                { "startItem" , startItem.ToString()},
+                { "pageSize" , pageSize.ToString()},
+                { "order" , order}
+            };
+
+            if (buildSasContentUrl != null)
+            {
+                queryParams.Add("buildSasContentUrl", buildSasContentUrl.ToString().ToLower());
+            }
+            if (buildSasThumbnailUrl != null)
+            {
+                queryParams.Add("buildSasThumbnailUrl", buildSasThumbnailUrl.ToString().ToLower());
+            }
+            if (filterExtensions != null)
+            {
+                queryParams.Add("filterExtensions", filterExtensions);
+            }
+            if (filterFolder != null)
+            {
+                queryParams.Add("filterFolder", filterFolder);
+            }
+
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/assets", queryParams: queryParams);
+            await request.SendWebRequest();
+
+            int totalCount = 0;
+            if (request.GetResponseHeaders().TryGetValue("x-total-count", out var count))
+            {
+                totalCount = int.Parse(count.ToString());
+            }
+
+            return new ApiResponseArray<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text, totalCount);
+        }
 
         //API details at https://sharing.clickup.com/t/h/c/2525524/REFL-2324/QPORG0ADY0HDK20
         public async Task<ApiResponseArray<AssetDTO>> GetSessionAssets(int worldId, int sessionId, int startItem, int pageSize, string filterExtensions = null, string filterFolder = null, string order = "label")
@@ -117,6 +179,20 @@ namespace Reflectis.SDK.ReflectisApi
             }
 
             return new ApiResponseArray<FolderDTO>(request.responseCode, request.error, request.downloadHandler.text, totalCount);
+        }
+
+        public async Task<ApiResponseArray<AssetDTO>> SearchAssets(int worldId, AssetSearchCriteria assetSearchCriteria, string order = "label", int startItem = 1, int pageSize = 2000000000)
+        {
+            Dictionary<string, string> queryParams = new()
+            {
+                { "startItem" , startItem.ToString()},
+                { "pageSize" , pageSize.ToString()},
+                { "order" , order},
+            };
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"search/assets/{worldId}", body: JsonConvert.SerializeObject(assetSearchCriteria), queryParams: queryParams);
+            await request.SendWebRequest();
+
+            return new ApiResponseArray<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
         #endregion
