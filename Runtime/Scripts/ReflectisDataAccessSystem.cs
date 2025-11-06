@@ -308,6 +308,26 @@ namespace Reflectis.SDK.ReflectisApi
             return new ApiResponse<string>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
+        public async Task<ApiResponse<AssetDTO>> CreateNew3dAsset(int worldId, byte[] data, string label)
+        {
+            List<IMultipartFormSection> formDataSections = new List<IMultipartFormSection>();
+
+            string fileName = label + ".glb";
+            string mimeType = "application/octet-stream";
+
+            formDataSections.Add(new UnityEngine.Networking.MultipartFormFileSection("contentData", data, fileName, mimeType));
+
+            formDataSections.Add(new MultipartFormDataSection("metadata", "{ \"contextualMenuSettings\":{ \"contextualMenuOptions\":[\"ColorPicker\", \"Explodable\", \"NonProportionalScale\", \"LockTransform\"]},\"unscaledSize\":true,\"scaleFactor\":1}"));
+
+            formDataSections.Add(new MultipartFormDataSection("label", label));
+
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/assets", requestBodyType: ERequestBodyType.MultipartFormData, body: formDataSections);
+
+            await request.SendWebRequest();
+
+            return new ApiResponse<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
+        }
+
         #endregion
 
         #region Enviroments
