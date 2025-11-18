@@ -53,96 +53,12 @@ namespace Reflectis.SDK.ReflectisApi
 
         #region Assets
 
-        public async Task<ApiResponse<AssetDTO>> DeleteAsset(int worldId, int assetId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbDELETE, $"worlds/{worldId}/assets/{assetId}");
-            await request.SendWebRequest();
-
-            return new ApiResponse<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
         public async Task<ApiResponse<AssetDTO>> GetAssetDetails(int worldId, int assetId)
         {
             using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/assets/{assetId}");
             await request.SendWebRequest();
 
             return new ApiResponse<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<AssetDTO>> DeleteAssetContent(int worldId, int assetId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbDELETE, $"worlds/{worldId}/assets/{assetId}/content");
-            await request.SendWebRequest();
-
-            return new ApiResponse<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<string>> GetAssetContent(int worldId, int assetId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/assets/{assetId}/content");
-            await request.SendWebRequest();
-
-            return new ApiResponse<string>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<AssetDTO>> UpdateAssetFolder(int worldId, int assetId, string folderName)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPUT, $"worlds/{worldId}/assets/{assetId}/folder", body: folderName);
-            await request.SendWebRequest();
-
-            return new ApiResponse<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<AssetDTO>> UpdateAssetLabel(int worldId, int assetId, string newLabel)
-        {
-            Dictionary<string, string> queryParams = new()
-        {
-            { "value" , newLabel}
-        };
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPUT, $"worlds/{worldId}/assets/{assetId}/label", queryParams: queryParams);
-            await request.SendWebRequest();
-
-            return new ApiResponse<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<AssetDTO>> UpdateAssetOwner(int worldId, int assetId, int newOwner)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPUT, $"worlds/{worldId}/assets/{assetId}/owner", body: newOwner.ToString());
-            await request.SendWebRequest();
-
-            return new ApiResponse<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<AssetDTO>> SetAssetPrivate(int worldId, int assetId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/assets/{assetId}/setprivate");
-            await request.SendWebRequest();
-
-            return new ApiResponse<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<AssetDTO>> SetAssetPublic(int worldId, int assetId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/assets/{assetId}/setpublic");
-            await request.SendWebRequest();
-
-            return new ApiResponse<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<AssetDTO>> DeleteAssetThumbnail(int worldId, int assetId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbDELETE, $"worlds/{worldId}/assets/{assetId}/thumbnail");
-            await request.SendWebRequest();
-
-            return new ApiResponse<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<string>> GetAssetThumbnail(int worldId, int assetId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/assets/{assetId}/thumbnail");
-            await request.SendWebRequest();
-
-            return new ApiResponse<string>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
         public async Task<ApiResponseArray<FolderDTO>> GetWorldFolders(int worldId, string order = "name", bool? includeDetails = null, int currentPage = 1, int pageSize = 8)
@@ -209,7 +125,7 @@ namespace Reflectis.SDK.ReflectisApi
         }
 
         //API details at https://sharing.clickup.com/t/h/c/2525524/REFL-2324/QPORG0ADY0HDK20
-        public async Task<ApiResponseArray<AssetDTO>> GetEventAssets(int worldId, int eventId, int startItem, int pageSize, string filterExtensions = null, string filterFolder = null, string order = "label")
+        public async Task<ApiResponseArray<AssetDTO>> GetSessionAssets(int worldId, int sessionId, int startItem, int pageSize, string filterExtensions = null, string filterFolder = null, string order = "label")
         {
             Dictionary<string, string> queryParams = new()
         {
@@ -240,7 +156,7 @@ namespace Reflectis.SDK.ReflectisApi
         }
 
         //API details at https://sharing.clickup.com/t/h/c/2525524/REFL-2324/QPORG0ADY0HDK20
-        public async Task<ApiResponseArray<FolderDTO>> GetEventAssetsFolders(int worldId, int eventId, int startItem, int pageSize, string filterExtensions = null, string order = "name")
+        public async Task<ApiResponseArray<FolderDTO>> GetSessionAssetsFolders(int worldId, int sessionId, int startItem, int pageSize, string filterExtensions = null, string order = "name")
         {
             Dictionary<string, string> queryParams = new()
         {
@@ -264,7 +180,6 @@ namespace Reflectis.SDK.ReflectisApi
 
             return new ApiResponseArray<FolderDTO>(request.responseCode, request.error, request.downloadHandler.text, totalCount);
         }
-
 
         public async Task<ApiResponseArray<AssetDTO>> SearchAssets(int worldId, AssetSearchCriteria assetSearchCriteria, string order = "label", int startItem = 1, int pageSize = 2000000000)
         {
@@ -340,39 +255,6 @@ namespace Reflectis.SDK.ReflectisApi
             return new ApiResponseArray<EnvironmentDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
-        public async Task<ApiResponse<EnvironmentDTO>> GetEnvironment(int worldId, int environmentId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/environments/{environmentId}");
-            await request.SendWebRequest();
-
-            return new ApiResponse<EnvironmentDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<EnvironmentDTO>> GetEnvironmentStorageFiles(int worldId, string filename)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/environments/download/{filename}");
-            await request.SendWebRequest();
-
-            return new ApiResponse<EnvironmentDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponseSearch<EnvironmentDTO>> SearchEnvironment(int worldId, EnvironmentSearchCriteria environmentSearchCriteria, string order, int currentPage = 1, int pageSize = 2000000000)
-        {
-            Dictionary<string, string> queryParams = new()
-        {
-            { "currentPage" , currentPage.ToString()},
-            { "pageSize" , pageSize.ToString()},
-        };
-            if (order != null)
-            {
-                queryParams.Add("order", order.ToString());
-            }
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/environments/search", body: JsonUtility.ToJson(environmentSearchCriteria), queryParams: queryParams);
-            await request.SendWebRequest();
-
-            return new ApiResponseSearch<EnvironmentDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
         #endregion
 
         #region Experience
@@ -380,25 +262,7 @@ namespace Reflectis.SDK.ReflectisApi
         {
             using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/experiences");
             await request.SendWebRequest();
-            //var envs = await GetEnvironments(worldId);
-            //List<ExperienceDTO> experiences = new();
-            //foreach (var env in envs.Content)
-            //{
-            //    experiences.Add(new ExperienceDTO()
-            //    {
-            //        Id = env.Id,
-            //        Label = env.Label,
-            //        Description = env.Description,
-            //        EnvironmentId = env.Id,
-            //        OwnerUserId = env.OwnerUserId,
-            //        Spotlight = true,
-            //        Tags = env.Tags,
-            //        Status = ExperienceDTO.EExperienceStatusOption.Published,
-            //        Type = ExperienceDTO.EExperienceTypeOption.Core,
-            //        ThumbnailUri = env.ThumbnailUri,
-            //        Config = "",
-            //    });
-            //}
+
             return new ApiResponseArray<ExperienceDTO>(request.responseCode, request.error,/* JsonConvert.SerializeObject(experiences)*/ request.downloadHandler.text);
         }
 
@@ -491,14 +355,6 @@ namespace Reflectis.SDK.ReflectisApi
                 { "monthOffset" , monthOffset.ToString()},
             };
             using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/sessions/month", queryParams);
-            await request.SendWebRequest();
-            return new ApiResponseArray<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-
-        public async Task<ApiResponseArray<SessionDTO>> GetMySessions(int worldId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/sessions/my");
             await request.SendWebRequest();
             return new ApiResponseArray<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
@@ -597,33 +453,12 @@ namespace Reflectis.SDK.ReflectisApi
             return new ApiResponse<ExperienceDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
-        public async Task<ApiResponse> UpdateEventAssets(int worldId, int eventId, int[] assetIds)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/sessions/{eventId}/updateassets", body: JsonConvert.SerializeObject(assetIds));
-            await request.SendWebRequest();
-
-            return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-
         public async Task<ApiResponse> UpdateEventInvitedUsers(int worldId, int eventId, UsersInvitationDTO usersInvitationPostDTO)
         {
             using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/sessions/{eventId}/users", body: JsonConvert.SerializeObject(usersInvitationPostDTO));
             await request.SendWebRequest();
 
             return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        #endregion
-
-        #region Facets
-
-        public async Task<ApiResponseArray<FacetDTO>> GetFacets()
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"facets/app/{app}");
-            await request.SendWebRequest();
-
-            return new ApiResponseArray<FacetDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
         #endregion
@@ -660,30 +495,6 @@ namespace Reflectis.SDK.ReflectisApi
             await request.SendWebRequest();
 
             return new ApiResponse<List<string>>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponseArray<PermissionDTO>> GetEventPermissionsByTag(int eventId, int tagId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"sessions/{eventId}/app/{app}/permissions/tags/{tagId}");
-            await request.SendWebRequest();
-
-            return new ApiResponseArray<PermissionDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponseArray<PermissionDTO>> GetAllPermissionByTag(int tagId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"sessions/app/{app}/permissions/tags/{tagId}");
-            await request.SendWebRequest();
-
-            return new ApiResponseArray<PermissionDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<PermissionDTO>> CreateEventPermission(PermissionDTO permissionPostDTO)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"sessions/permissions", body: JsonConvert.SerializeObject(permissionPostDTO));
-            await request.SendWebRequest();
-
-            return new ApiResponse<PermissionDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
         public async Task<ApiResponse<PermissionDTO>> CreateEventPermissions(List<PermissionDTO> permissionPostDTO)
@@ -790,22 +601,6 @@ namespace Reflectis.SDK.ReflectisApi
             return new ApiResponse<WorldConfigDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
-        public async Task<ApiResponse<SessionDTO>> GetWorldDefaultEvent(int worldId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/sessions/default");
-            await request.SendWebRequest();
-
-            return new ApiResponse<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponseArray<CatalogDTO>> GetWorldCatalogs(int worldId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/catalogs");
-            await request.SendWebRequest();
-
-            return new ApiResponseArray<CatalogDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
         public async Task<ApiResponse<ExperienceDTO>> GetDefaultExperience(int worldId)
         {
             using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/experiences/default");
@@ -825,14 +620,6 @@ namespace Reflectis.SDK.ReflectisApi
             return new ApiResponse<UserDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
-        public async Task<ApiResponse<object>> GetUserPreferences(int worldId, int userId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/users/{userId}/preferences");
-            await request.SendWebRequest();
-
-            return new ApiResponse<object>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
         public async Task<ApiResponse> UpdateMyPreferences(object newPreferences)
         {
             using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"users/my/preferences", body: JsonConvert.SerializeObject(newPreferences));
@@ -848,14 +635,6 @@ namespace Reflectis.SDK.ReflectisApi
             await request.SendWebRequest();
 
             return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<UserDTO>> GetMyUserData(int worldId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/users/my/profile");
-            await request.SendWebRequest();
-
-            return new ApiResponse<UserDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
         public async Task<ApiResponse<UserDTO>> GetMyUserData()
@@ -879,15 +658,6 @@ namespace Reflectis.SDK.ReflectisApi
             await request.SendWebRequest();
 
             return new ApiResponseSearch<UserDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-
-        internal async Task<ApiResponse<bool>> CheckMaxTenantCCU(int worldId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/join");
-            await request.SendWebRequest();
-
-            return new ApiResponse<bool>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
         #endregion
@@ -965,13 +735,6 @@ namespace Reflectis.SDK.ReflectisApi
         public async Task<ApiResponse<CustomType>> DeleteMySaveData(int id, List<string> keys)
         {
             using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbDELETE, $"worlds/{id}/users/my/data", body: JsonConvert.SerializeObject(keys));
-            await request.SendWebRequest();
-            return new ApiResponse<CustomType>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<CustomType>> DeleteAllMySaveData(int id)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbDELETE, $"worlds/{id}/users/my/data/all");
             await request.SendWebRequest();
             return new ApiResponse<CustomType>(request.responseCode, request.error, request.downloadHandler.text);
         }
