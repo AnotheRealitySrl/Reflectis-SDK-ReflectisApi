@@ -34,11 +34,14 @@ namespace Reflectis.SDK.ReflectisApi
 
         #region Overrides
 
-        public override Task Init()
+        public override async Task Init()
         {
             httpSystem = SM.GetSystem<HttpSystem>();
 
-            return base.Init();
+            await base.Init();
+
+            //apiConfig = new AppIdentification(apiConfig.Credential,
+            //    "https://localhost:12026", apiConfig.ApiVersion);
         }
 
         #endregion
