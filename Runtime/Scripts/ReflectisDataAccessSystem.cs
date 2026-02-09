@@ -127,6 +127,63 @@ namespace Reflectis.SDK.ReflectisApi
             return new ApiResponseArray<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text, totalCount);
         }
 
+
+        public async Task<ApiResponse<FolderContentDTO>> GetFolderContent(int worldId, int folderId, string filterExtensions = null, bool? buildSasContentUrl = null, bool? buildSasThumbnailUrl = null, int startItem = 1, int pageSize = 50, string order = "label")
+        {
+            Dictionary<string, string> queryParams = new()
+            {
+                { "startItem" , startItem.ToString()},
+                { "pageSize" , pageSize.ToString()},
+                { "order" , order}
+            };
+
+            if (buildSasContentUrl != null)
+            {
+                queryParams.Add("buildSasContentUrl", buildSasContentUrl.ToString().ToLower());
+            }
+            if (buildSasThumbnailUrl != null)
+            {
+                queryParams.Add("buildSasThumbnailUrl", buildSasThumbnailUrl.ToString().ToLower());
+            }
+            if (filterExtensions != null)
+            {
+                queryParams.Add("filterExtensions", filterExtensions);
+            }
+
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/folders/{folderId}/content", queryParams: queryParams);
+            await request.SendWebRequest();
+
+            return new ApiResponse<FolderContentDTO>(request.responseCode, request.error, request.downloadHandler.text);
+        }
+
+        public async Task<ApiResponseSearch<AssetDTO>> GetFolderAssets(int worldId, int folderId, string filterExtensions = null, bool? buildSasContentUrl = null, bool? buildSasThumbnailUrl = null, int startItem = 1, int pageSize = 50, string order = "label")
+        {
+            Dictionary<string, string> queryParams = new()
+            {
+                { "startItem" , startItem.ToString()},
+                { "pageSize" , pageSize.ToString()},
+                { "order" , order}
+            };
+
+            if (buildSasContentUrl != null)
+            {
+                queryParams.Add("buildSasContentUrl", buildSasContentUrl.ToString().ToLower());
+            }
+            if (buildSasThumbnailUrl != null)
+            {
+                queryParams.Add("buildSasThumbnailUrl", buildSasThumbnailUrl.ToString().ToLower());
+            }
+            if (filterExtensions != null)
+            {
+                queryParams.Add("filterExtensions", filterExtensions);
+            }
+
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/folders/{folderId}/assets", queryParams: queryParams);
+            await request.SendWebRequest();
+
+            return new ApiResponseSearch<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
+        }
+
         //API details at https://sharing.clickup.com/t/h/c/2525524/REFL-2324/QPORG0ADY0HDK20
         public async Task<ApiResponseArray<AssetDTO>> GetSessionAssets(int worldId, int sessionId, int startItem, int pageSize, string filterExtensions = null, string filterFolder = null, string order = "label")
         {
