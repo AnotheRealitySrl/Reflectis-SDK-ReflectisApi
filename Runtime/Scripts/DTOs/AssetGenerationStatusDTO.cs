@@ -7,11 +7,16 @@ namespace Reflectis.SDK.ReflectisApi
         public int id;
         public AssetDTO asset;
         public float progress;
+        public bool IsInProgress => status != AssetGenerationStatus.SUCCESS && status != AssetGenerationStatus.ERROR;
     }
+
 
     public enum AssetGenerationStatus
     {
-        INPROGRESS,
+        STARTING,
+        IMAGE_GENERATION,
+        STARTING_PUBLIC_MODEL_GENERATION,
+        MODEL_GENERATION,
         SUCCESS,
         ERROR
     }
