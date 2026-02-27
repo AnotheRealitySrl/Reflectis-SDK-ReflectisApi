@@ -28,6 +28,7 @@ namespace Reflectis.SDK.ReflectisApi
         [SerializeField] private bool isLiveNow;
         [SerializeField] private ESessionAccessibility accessibility;
         [SerializeField] private ESessionStatus status;
+        [SerializeField] private object config;
 
         public int Id { get => id; set => id = value; }
         public DateTime CreationDate => creationDate;
@@ -55,6 +56,7 @@ namespace Reflectis.SDK.ReflectisApi
         public bool IsLiveNow { get => isLiveNow; set => isLiveNow = value; }
         public ESessionAccessibility Accessibility { get => accessibility; set => accessibility = value; }
         public ESessionStatus Status { get => status; set => status = value; }
+        public object Config { get => config; set => config = value; }
     }
 
     public enum ESessionAccessibility

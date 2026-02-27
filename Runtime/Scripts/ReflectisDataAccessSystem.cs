@@ -458,13 +458,6 @@ namespace Reflectis.SDK.ReflectisApi
 
             return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
         }
-        public async Task<ApiResponse> ShareSessionAssets(int worldId, int sessionId, List<int> assetsId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/sessions/{sessionId}/assets/share", body: JsonConvert.SerializeObject(assetsId));
-            await request.SendWebRequest();
-
-            return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
-        }
 
         public async Task<ApiResponse> UpdateExperienceSaveData(int worldId, int eventId, object assetData)
         {
@@ -481,6 +474,13 @@ namespace Reflectis.SDK.ReflectisApi
             return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
         }
 
+        public async Task<ApiResponse> ResetSessionSaveData(int worldId, int sessionId)
+        {
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbDELETE, $"worlds/{worldId}/sessions/{sessionId}/sessionConfig");
+            await request.SendWebRequest();
+
+            return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
+        }
         public async Task<ApiResponse<ExperienceDTO>> CreateAuthoredExperience(int worldId, NewExperienceDTO newExperienceDTO)
         {
             // 1. Create a list to hold all your multipart form sections
