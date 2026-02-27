@@ -458,10 +458,24 @@ namespace Reflectis.SDK.ReflectisApi
 
             return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
         }
+        public async Task<ApiResponse> ShareSessionAssets(int worldId, int sessionId, List<int> assetsId)
+        {
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/sessions/{sessionId}/assets/share", body: JsonConvert.SerializeObject(assetsId));
+            await request.SendWebRequest();
+
+            return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
+        }
 
         public async Task<ApiResponse> UpdateExperienceSaveData(int worldId, int eventId, object assetData)
         {
             using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPUT, $"worlds/{worldId}/sessions/{eventId}/experienceConfig", body: JsonConvert.SerializeObject(assetData));
+            await request.SendWebRequest();
+
+            return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
+        }
+        public async Task<ApiResponse> UpdateSessionSaveData(int worldId, int sessionId, object assetData)
+        {
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPUT, $"worlds/{worldId}/sessions/{sessionId}/sessionConfig", body: JsonConvert.SerializeObject(assetData));
             await request.SendWebRequest();
 
             return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
