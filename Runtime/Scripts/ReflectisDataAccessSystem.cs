@@ -451,6 +451,13 @@ namespace Reflectis.SDK.ReflectisApi
             return new ApiResponse<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
+        public async Task<ApiResponse> ShareExperienceAssets(int worldId, int experienceId, List<int> assetsId)
+        {
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/experiences/{experienceId}/assets/share", body: JsonConvert.SerializeObject(assetsId));
+            await request.SendWebRequest();
+
+            return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
+        }
 
         public async Task<ApiResponse> UpdateExperienceSaveData(int worldId, int eventId, object assetData)
         {
