@@ -70,5 +70,7 @@ namespace Reflectis.SDK.ReflectisApi
         Scheduled,
         OnTheFly,
         Expired,
+        Empty,
+        Persistent,
     }
 }
