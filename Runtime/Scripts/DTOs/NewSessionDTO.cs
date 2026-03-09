@@ -16,6 +16,7 @@ namespace Reflectis.SDK.ReflectisApi
         [SerializeField] private bool multiplayer;
         [SerializeField] private int[] tagIds;
         [SerializeField] private int[] userIds;
+        [SerializeField] private ESessionStatus status;
 
         public string Label { get => label; set => label = value; }
         public int OwnerUserId { get => ownerUserId; set => ownerUserId = value; }
@@ -31,6 +32,7 @@ namespace Reflectis.SDK.ReflectisApi
         public int[] TagIds { get => tagIds; set => tagIds = value; }
         public ESessionAccessibility Accessibility { get => accessibility; set => accessibility = value; }
         public int[] UserIds { get => userIds; set => userIds = value; }
+        public ESessionStatus Status { get => status; set => status = value; }
     }
 
 }
