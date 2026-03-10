@@ -4,8 +4,6 @@ using Reflectis.SDK.Core.ApiSystem;
 using Reflectis.SDK.Core.SystemFramework;
 using Reflectis.SDK.Core.Utilities;
 using Reflectis.SDK.Http;
-
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -47,8 +45,6 @@ namespace Reflectis.SDK.ReflectisApi
         #endregion
 
         #region ApiServer
-
-        public Uri GetApplicationUri() => !string.IsNullOrEmpty(apiConfig.ApiBaseUrl) ? new Uri(apiConfig.ApiBaseUrl, UriKind.Absolute) : null;
 
         public int CacheId { get; set; } = -1;
 
