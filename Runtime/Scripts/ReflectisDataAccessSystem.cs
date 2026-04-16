@@ -16,7 +16,7 @@ using static Reflectis.SDK.Core.Authentication.IAuthenticationSystem;
 namespace Reflectis.SDK.ReflectisApi
 {
     [CreateAssetMenu(menuName = "AnotheReality/Systems/ReflectisDataAccessSystem", fileName = "ReflectisDataAccessSystemConfig")]
-    public class ReflectisDataAccessSystem : ApiSystemBase
+    public class ReflectisDataAccessSystem : ApiSystemBase<ReflectisDataAccessApi, ReflectisDataAccessData>
     {
         #region Private variables
 
