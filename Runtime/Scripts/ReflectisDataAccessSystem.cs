@@ -10,43 +10,38 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
-using static HttpSystem;
 using static Reflectis.SDK.Core.Authentication.IAuthenticationSystem;
 
 namespace Reflectis.SDK.ReflectisApi
 {
     [CreateAssetMenu(menuName = "AnotheReality/Systems/ReflectisDataAccessSystem", fileName = "ReflectisDataAccessSystemConfig")]
-    public class ReflectisDataAccessSystem : ApiSystemBase<ReflectisDataAccessApi, ReflectisDataAccessData>
+    public class ReflectisDataAccessSystem : ApiSystemBase
     {
-        #region Private variables
-
+        #region Inspector info
+        [Header("Reflectis Data Access API Info")]
+        // ReflectisDataAccessSystem has no additional serialized fields beyond ApiSystemBase.
+        // CacheId is runtime-only state.
+        [System.NonSerialized] public int cacheId = -1;
+        #endregion
+        
+        #region Private stuff
         private const string app = "Unity";
-
         #endregion
 
         #region Properties
-
         public string ApiVersion => apiConfig.ApiVersion;
-
+        public int CacheId { get { return cacheId; } set { cacheId = value; } }
         #endregion
 
         #region Overrides
 
         public override async Task Init()
         {
-            httpSystem = SM.GetSystem<HttpSystem>();
-
             await base.Init();
 
             //apiConfig = new AppIdentification(apiConfig.Credential,
             //    "https://localhost:12026", apiConfig.ApiVersion);
         }
-
-        #endregion
-
-        #region ApiServer
-
-        public int CacheId { get; set; } = -1;
 
         #endregion
 
@@ -292,7 +287,7 @@ namespace Reflectis.SDK.ReflectisApi
 
             formDataSections.Add(new MultipartFormDataSection("label", label));
 
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/assets", requestBodyType: ERequestBodyType.MultipartFormData, body: formDataSections);
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/assets", requestBodyType: HttpHelper.ERequestBodyType.MultipartFormData, body: formDataSections);
 
             await request.SendWebRequest();
 
@@ -371,7 +366,7 @@ namespace Reflectis.SDK.ReflectisApi
                 formDataSections.Add(new MultipartFormDataSection("tagIds", tagIds));
             }
 
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPUT, $"worlds/{worldId}/experiences/{exp.Id}/metadata", requestBodyType: ERequestBodyType.MultipartFormData, body: formDataSections);
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPUT, $"worlds/{worldId}/experiences/{exp.Id}/metadata", requestBodyType: HttpHelper.ERequestBodyType.MultipartFormData, body: formDataSections);
 
             await request.SendWebRequest();
 
@@ -520,7 +515,7 @@ namespace Reflectis.SDK.ReflectisApi
             using UnityWebRequest request = await BuildRequest(
                 UnityWebRequest.kHttpVerbPOST,
                 $"worlds/{worldId}/experiences/authored",
-                requestBodyType: HttpSystem.ERequestBodyType.MultipartFormData, // Specify the new enum value
+                requestBodyType: HttpHelper.ERequestBodyType.MultipartFormData, // Specify the new enum value
                 body: formDataSections // Pass the list of IMultipartFormSection as the body
             );
 
