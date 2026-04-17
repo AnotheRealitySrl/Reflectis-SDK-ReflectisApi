@@ -21,7 +21,7 @@ namespace Reflectis.SDK.ReflectisApi
         [SerializeField] private int capacity;
         [SerializeField] private bool multiplayer;
         [SerializeField] private TagDTO[] tags;
-        [SerializeField] private UserDTO[] users;
+        [SerializeField] private int[] userIds;
         [SerializeField] private object template;
         [SerializeField] private bool unlimited;
         [SerializeField] private bool lobby;
@@ -47,7 +47,7 @@ namespace Reflectis.SDK.ReflectisApi
         public DateTime? EndDate { get => endDate; set => endDate = value; }
         public int Capacity { get => capacity; set => capacity = value; }
         public bool Multiplayer { get => multiplayer; set => multiplayer = value; }
-        public UserDTO[] Users { get => users; set => users = value; }
+        public int[] UserIds { get => userIds; set => userIds = value; }
         public object Template { get => template; set => template = value; }
         public bool Unlimited { get => unlimited; set => unlimited = value; }
         public TagDTO[] Tags { get => tags; set => tags = value; }
