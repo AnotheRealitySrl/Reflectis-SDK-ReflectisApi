@@ -308,6 +308,33 @@ namespace Reflectis.SDK.ReflectisApi
 
         #endregion
 
+        #region Npcs
+
+        // Runtime NPC list for the chatbot Tool picker: enabled NPCs visible in
+        // the world, alphabetical by label. modelUrl/thumbnailUrl are short-lived
+        // SAS links minted server-side per response.
+        public async Task<ApiResponseArray<NpcDTO>> GetNpcs(int worldId)
+        {
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/npcs");
+            await request.SendWebRequest();
+
+            return new ApiResponseArray<NpcDTO>(request.responseCode, request.error, request.downloadHandler.text);
+        }
+
+        // Per-id refresh: the same NpcDTO as the list item, for one NPC, with
+        // freshly-minted SAS URLs — call this to re-mint an expired modelUrl/
+        // thumbnailUrl without re-pulling the whole list. Mirrors GetAssetDetails.
+        // Note the /runtime suffix: the bare /{id} is the Backoffice management getter.
+        public async Task<ApiResponse<NpcDTO>> GetNpcDetails(int worldId, int npcId)
+        {
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/npcs/{npcId}/runtime");
+            await request.SendWebRequest();
+
+            return new ApiResponse<NpcDTO>(request.responseCode, request.error, request.downloadHandler.text);
+        }
+
+        #endregion
+
         #region Experience
         public async Task<ApiResponseArray<ExperienceDTO>> GetWorldExperiences(int worldId)
         {
