@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Newtonsoft.Json;
 
@@ -29,6 +30,7 @@ namespace Reflectis.SDK.ReflectisApi
         [SerializeField] private DateTime lastModified;
         [SerializeField] private string thumbnailUrl;
         [SerializeField] private string modelUrl;
+        [SerializeField] private bool isWorldDefault;
 
         public int Id => id;
         public string Label => label;
@@ -38,6 +40,14 @@ namespace Reflectis.SDK.ReflectisApi
         public DateTime LastModified => lastModified;
         public string ThumbnailUrl => thumbnailUrl;
         public string ModelUrl => modelUrl;
+
+        /// <summary>
+        /// C2 "world favorite": true for THE single NPC pinned as this world's favorite
+        /// (at most one true in the list). A per-world choice, distinct from the tenant-level
+        /// auto-seed default (which the runtime list does not carry). Use it to pre-select the
+        /// NPC and to pin it first (see <see cref="NpcDtoOrdering.OrderForPicker"/>).
+        /// </summary>
+        public bool IsWorldDefault => isWorldDefault;
 
         /// <summary>
         /// Resolves the GLB clip name for a canonical state with the documented
@@ -54,6 +64,41 @@ namespace Reflectis.SDK.ReflectisApi
                 return idle;
             return null;
         }
+    }
+
+    /// <summary>
+    /// Default ordering for the NPC appearance picker: the world favorite
+    /// (<see cref="NpcDTO.IsWorldDefault"/>) pinned first, then alphabetical by label
+    /// (ordinal, case-insensitive) — matching the server's own order. Reusable via the
+    /// <see cref="NpcDtoOrdering.OrderForPicker"/> LINQ extension. NPC sibling of
+    /// AgentPickerComparer (NPCs have no tier, so there is no tier tie-break).
+    /// </summary>
+    public sealed class NpcPickerComparer : IComparer<NpcDTO>
+    {
+        public static readonly NpcPickerComparer Instance = new();
+
+        public int Compare(NpcDTO x, NpcDTO y)
+        {
+            if (ReferenceEquals(x, y)) return 0;
+            if (x is null) return 1;   // nulls last
+            if (y is null) return -1;
+
+            // The world favorite is pinned to the very top (it's the most important).
+            int byWorldDefault = y.IsWorldDefault.CompareTo(x.IsWorldDefault);   // true before false
+            if (byWorldDefault != 0) return byWorldDefault;
+
+            return string.Compare(x.Label, y.Label, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    public static class NpcDtoOrdering
+    {
+        /// <summary>
+        /// Returns the NPCs in the picker's default order (world favorite first, then
+        /// alphabetical by label). Non-mutating; e.g. <c>response.Content.OrderForPicker()</c>.
+        /// </summary>
+        public static IEnumerable<NpcDTO> OrderForPicker(this IEnumerable<NpcDTO> npcs) =>
+            npcs.OrderBy(n => n, NpcPickerComparer.Instance);
     }
 
     /// <summary>
