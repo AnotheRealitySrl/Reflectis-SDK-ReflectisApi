@@ -1,5 +1,11 @@
 # Release notes
 
+## v2.1.0
+
+### Added
+- Added `NpcDTO` and the runtime `GetNpcs` / `GetNpcDetails` calls to `ReflectisDataAccessSystem`.
+- `NpcDTO` carries `IsWorldDefault` and `OrderForPicker`, so a world's favourite NPC is pinned first in the picker.
+
 ## v2.0.0
 
 ### Changed
