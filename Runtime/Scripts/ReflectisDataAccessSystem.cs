@@ -306,6 +306,28 @@ namespace Reflectis.SDK.ReflectisApi
             return new ApiResponseArray<EnvironmentDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
+        // The interpreted assembly the environment needs, or a null Content when it has
+        // none: the API answers 204 with an empty body, which is the normal case and must
+        // not read as a failure.
+        public async Task<ApiResponse<EnvironmentDllDTO>> GetEnvironmentDll(int worldId, int environmentId)
+        {
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/environments/{environmentId}/environment-dll");
+            await request.SendWebRequest();
+
+            return new ApiResponse<EnvironmentDllDTO>(request.responseCode, request.error, request.downloadHandler.text);
+        }
+
+        // Raw bytes out of the environment storage reader, for paths that come from an API
+        // record rather than from a URL the client composed. The endpoint redirects to a
+        // short-lived SAS link on blob deployments; UnityWebRequest follows it.
+        public async Task<byte[]> DownloadEnvironmentFile(string storageRelativePath)
+        {
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"environments/download/{storageRelativePath}");
+            await request.SendWebRequest();
+
+            return request.result == UnityWebRequest.Result.Success ? request.downloadHandler.data : null;
+        }
+
         #endregion
 
         #region Npcs
