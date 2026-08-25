@@ -20,7 +20,11 @@ namespace Reflectis.SDK.ReflectisApi
 
         public int Id => id;
 
-        /// <summary>HotUpdate_&lt;productGUID&gt;: unique per Creator Kit project.</summary>
+        /// <summary>
+        /// HotUpdate_&lt;productGUID&gt;_&lt;fingerprint&gt;: the project, then a digest of the source
+        /// it was compiled from. One name is one set of bytes, which is what lets a session hold
+        /// two versions of the same project at once.
+        /// </summary>
         public string AssemblyName => assemblyName;
 
         /// <summary>
