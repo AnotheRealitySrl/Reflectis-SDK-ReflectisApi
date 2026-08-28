@@ -2,7 +2,7 @@
 
 using UnityEngine;
 
-namespace Reflectis.SDK.ReflectisApi
+namespace Virtuademy.SDK.PlatformApi
 {
     [Serializable]
     public class ScheduleDTO

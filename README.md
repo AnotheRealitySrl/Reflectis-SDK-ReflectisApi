@@ -1,1 +1,1 @@
-# Reflectis-SDK-ReflectisApi
+# Virtuademy-SDK-PlatformApi

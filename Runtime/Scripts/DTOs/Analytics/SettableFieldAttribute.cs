@@ -1,6 +1,6 @@
 using System;
 
-namespace Reflectis.SDK.ReflectisApi
+namespace Virtuademy.SDK.PlatformApi
 {
     [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
     public class SettableFieldAttribute : Attribute

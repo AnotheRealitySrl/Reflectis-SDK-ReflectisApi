@@ -1,7 +1,7 @@
 using UnityEngine;
 
 #nullable enable
-namespace Reflectis.SDK.ReflectisApi
+namespace Virtuademy.SDK.PlatformApi
 {
     public class WorldSearchCriteria
     {

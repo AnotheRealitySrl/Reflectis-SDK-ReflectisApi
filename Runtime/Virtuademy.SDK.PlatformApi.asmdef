@@ -1,6 +1,6 @@
 {
-    "name": "Reflectis.SDK.ReflectisApi",
-    "rootNamespace": "Reflectis.SDK.ReflectisApi",
+    "name": "Virtuademy.SDK.PlatformApi",
+    "rootNamespace": "Virtuademy.SDK.PlatformApi",
     "references": [
         "GUID:ab59f74e483e1ee4595bfefea56493f2"
     ],

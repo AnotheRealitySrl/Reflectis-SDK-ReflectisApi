@@ -1,18 +1,18 @@
 using Newtonsoft.Json;
 
-using Reflectis.SDK.Core.ApiSystem;
-using Reflectis.SDK.Core.SystemFramework;
-using Reflectis.SDK.Core.Utilities;
-using Reflectis.SDK.Http;
+using Virtuademy.SDK.Core.ApiSystem;
+using Virtuademy.SDK.Core.SystemFramework;
+using Virtuademy.SDK.Core.Utilities;
+using Virtuademy.SDK.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using UnityEngine;
 using UnityEngine.Networking;
 
-using static Reflectis.SDK.Core.Authentication.IAuthenticationSystem;
+using static Virtuademy.SDK.Core.Authentication.IAuthenticationSystem;
 
-namespace Reflectis.SDK.ReflectisApi
+namespace Virtuademy.SDK.PlatformApi
 {
     [CreateAssetMenu(menuName = "AnotheReality/Systems/ReflectisDataAccessSystem", fileName = "ReflectisDataAccessSystemConfig")]
     public class ReflectisDataAccessSystem : ApiSystemBase

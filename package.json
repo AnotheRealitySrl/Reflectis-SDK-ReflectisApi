@@ -1,6 +1,6 @@
 {
-  "name": "com.anotherealitysrl.reflectis-sdk-reflectisapi",
-  "displayName": "Reflectis-SDK-ReflectisApi",
+  "name": "com.anotherealitysrl.virtuademy-sdk-platformapi",
+  "displayName": "Virtuademy-SDK-PlatformApi",
   "version": "2.1.0",
   "unity": "2020.1",
   "description": "Reflectis Reflectis API module",
@@ -10,6 +10,6 @@
   "category": "Unity",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AnotheRealitySrl/Reflectis-SDK-ReflectisApi.git"
+    "url": "https://github.com/AnotheRealitySrl/Virtuademy-SDK-PlatformApi.git"
   }
 }

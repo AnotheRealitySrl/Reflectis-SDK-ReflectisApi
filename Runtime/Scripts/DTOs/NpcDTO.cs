@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 using UnityEngine;
 
-namespace Reflectis.SDK.ReflectisApi
+namespace Virtuademy.SDK.PlatformApi
 {
     /// <summary>
     /// Runtime NPC (chatbot appearance) returned by the Application API

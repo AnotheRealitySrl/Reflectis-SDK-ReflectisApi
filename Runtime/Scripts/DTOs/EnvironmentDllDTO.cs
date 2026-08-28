@@ -2,7 +2,7 @@ using System;
 
 using UnityEngine;
 
-namespace Reflectis.SDK.ReflectisApi
+namespace Virtuademy.SDK.PlatformApi
 {
     /// <summary>
     /// The interpreted (HybridCLR) assembly an environment needs. Null when the world

@@ -1,6 +1,6 @@
 using System;
 
-namespace Reflectis.SDK.ReflectisApi
+namespace Virtuademy.SDK.PlatformApi
 {
     [Serializable]
     public class ExperienceTranscriptDTO : ExperienceStepDTO

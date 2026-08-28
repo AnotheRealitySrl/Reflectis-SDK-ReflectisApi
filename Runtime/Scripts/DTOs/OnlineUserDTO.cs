@@ -3,7 +3,7 @@ using System;
 
 using UnityEngine;
 
-namespace Reflectis.SDK.ReflectisApi
+namespace Virtuademy.SDK.PlatformApi
 {
     [Serializable, JsonObject(MemberSerialization.Fields)]
     public class OnlineUserDTO

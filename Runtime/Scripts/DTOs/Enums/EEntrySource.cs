@@ -1,5 +1,5 @@
 
-namespace Reflectis.SDK.ReflectisApi
+namespace Virtuademy.SDK.PlatformApi
 {
     public enum EEntrySource
     {

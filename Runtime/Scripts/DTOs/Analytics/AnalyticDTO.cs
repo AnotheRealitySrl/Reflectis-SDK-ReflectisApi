@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Reflectis.SDK.ReflectisApi
+namespace Virtuademy.SDK.PlatformApi
 {
     public class AnalyticDTO
     {
