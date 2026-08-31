@@ -294,6 +294,39 @@ namespace Reflectis.SDK.ReflectisApi
             return new ApiResponse<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
+        /// <summary>
+        /// Uploads a generic media file (image / video / any content) to the world's asset library
+        /// and returns the created asset. Generalises <see cref="CreateNew3dAsset"/>: the caller
+        /// supplies the real file name + MIME type (instead of the hardcoded .glb / octet-stream),
+        /// an optional thumbnail, and optional metadata JSON. Backend: POST worlds/{worldId}/assets.
+        /// </summary>
+        public async Task<ApiResponse<AssetDTO>> CreateNewAsset(int worldId, byte[] data, string fileName,
+            string mimeType, string label, byte[] thumbnailData = null, string thumbnailFileName = null,
+            string thumbnailMimeType = null, string metadataJson = null)
+        {
+            List<IMultipartFormSection> formDataSections = new List<IMultipartFormSection>();
+
+            formDataSections.Add(new UnityEngine.Networking.MultipartFormFileSection("contentData", data, fileName, mimeType));
+
+            if (thumbnailData != null && thumbnailData.Length > 0)
+            {
+                formDataSections.Add(new UnityEngine.Networking.MultipartFormFileSection("thumbnailData", thumbnailData,
+                    string.IsNullOrEmpty(thumbnailFileName) ? fileName : thumbnailFileName,
+                    string.IsNullOrEmpty(thumbnailMimeType) ? mimeType : thumbnailMimeType));
+            }
+
+            // Neutral metadata by default (the endpoint requires the field to be valid JSON when present).
+            formDataSections.Add(new MultipartFormDataSection("metadata", string.IsNullOrEmpty(metadataJson) ? "{}" : metadataJson));
+
+            formDataSections.Add(new MultipartFormDataSection("label", label));
+
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/assets", requestBodyType: HttpHelper.ERequestBodyType.MultipartFormData, body: formDataSections);
+
+            await request.SendWebRequest();
+
+            return new ApiResponse<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
+        }
+
         #endregion
 
         #region Enviroments
