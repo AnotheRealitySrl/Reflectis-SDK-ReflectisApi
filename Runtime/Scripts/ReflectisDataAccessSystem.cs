@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 using Virtuademy.SDK.Core.ApiSystem;
 using Virtuademy.SDK.Core.SystemFramework;
@@ -17,6 +17,14 @@ namespace Virtuademy.SDK.PlatformApi
     [CreateAssetMenu(menuName = "AnotheReality/Systems/ReflectisDataAccessSystem", fileName = "ReflectisDataAccessSystemConfig")]
     public class ReflectisDataAccessSystem : ApiSystemBase
     {
+        /// <summary>
+        /// Opts this system into endpoint discovery: its base URL is resolved from
+        /// the platform record for the platform REST API rather than from the value serialized into
+        /// the build, falling back to that value when discovery has not answered.
+        /// See ADR 0024 in the meta-repo.
+        /// </summary>
+        protected override string DiscoveryApiType => "Application";
+
         #region Inspector info
         [Header("Reflectis Data Access API Info")]
         // ReflectisDataAccessSystem has no additional serialized fields beyond ApiSystemBase.
