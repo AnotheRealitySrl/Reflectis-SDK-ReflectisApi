@@ -102,6 +102,34 @@ namespace Virtuademy.SDK.PlatformApi
             return new PlatformWorld(dto.Id, dto.Label, dto.Note, dto.ThumbnailUri, dto.Multiplayer);
         }
 
+        /// <summary>
+        /// The world a publication points at, from the app-worlds answer.
+        /// </summary>
+        /// <remarks>
+        /// The placement carries exactly the five fields <see cref="PlatformWorld"/> has, which is
+        /// not a coincidence — the endpoint was specified to return "enough of that world to render
+        /// a chooser without a second round trip". So resolving an app's worlds costs **one**
+        /// request, not one plus a world lookup per candidate.
+        /// <para>
+        /// It is also the confirmation that dropping <c>MaxOnlineUsers</c> from the contract was
+        /// right: the placement deliberately excludes world configuration, so a field sourced from
+        /// the world's limits could never have been filled on this path.
+        /// </para>
+        /// </remarks>
+        public static PlatformWorld ToPlatformWorld(ExternalAppPlacementDTO dto)
+        {
+            if (dto == null)
+            {
+                return null;
+            }
+
+            return new PlatformWorld(dto.WorldId,
+                                     dto.WorldLabel,
+                                     dto.WorldDescription,
+                                     dto.WorldThumbnailUri,
+                                     dto.Multiplayer);
+        }
+
         /// <param name="localUserId">Needed for <c>IsOwner</c>, as with the session.</param>
         public static PlatformExperience ToPlatformExperience(ExperienceDTO dto, int localUserId)
         {

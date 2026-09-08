@@ -722,6 +722,31 @@ namespace Virtuademy.SDK.PlatformApi
             return new ApiResponse<WorldDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
+        /// <summary>
+        /// Every world the calling app is published in, one entry per published <c>ExternalApp</c>
+        /// experience. How a standalone external app finds out where it may run.
+        /// </summary>
+        /// <remarks>
+        /// <b>No app parameter, by contract.</b> The app is identified by its token's <c>azp</c>
+        /// claim, matched server-side against the <c>appObjectId</c> on each experience's config.
+        /// So an app cannot ask about another app, and there is no app identity duplicated between
+        /// the caller and the record.
+        /// <para>
+        /// Three answers matter and they are different states, not degrees of the same one:
+        /// <b>200</b> with entries, <b>204</b> meaning the app is registered but published in no
+        /// world this user can enter — terminal and explainable, not something to retry — and
+        /// <b>403</b> meaning the token carries no <c>azp</c> at all, i.e. there is no app asking.
+        /// </para>
+        /// Contract: <c>contracts/openapi/external-app-worlds.yaml</c> in the meta-repo.
+        /// </remarks>
+        public async Task<ApiResponseArray<ExternalAppPlacementDTO>> GetExternalAppWorlds()
+        {
+            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, "external-app/worlds");
+            await request.SendWebRequest();
+
+            return new ApiResponseArray<ExternalAppPlacementDTO>(request.responseCode, request.error, request.downloadHandler.text);
+        }
+
         public async Task<ApiResponse<WorldConfigDTO>> GetWorldConfig(int worldId)
         {
             using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/config");
