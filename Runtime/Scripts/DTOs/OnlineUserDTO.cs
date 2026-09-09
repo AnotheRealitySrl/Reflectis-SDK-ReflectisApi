@@ -19,15 +19,15 @@ namespace Virtuademy.SDK.PlatformApi
         [SerializeField] private int? code;
         [SerializeField] private TagDTO[] tags;
 
-        public int UserId { get => userId; set => userId = value; }
-        public string Platform { get => platform; set => platform = value; }
-        public int ShardNumber { get => shardNumber; set => shardNumber = value; }
-        public int SessionId { get => sessionId; set => sessionId = value; }
-        public int WorldId { get => worldId; set => worldId = value; }
-        public string ConnectionId { get => connectionId; set => connectionId = value; }
-        public object Preferences { get => preferences; set => preferences = value; }
-        public string Email { get => email; set => email = value; }
-        public int? Code { get => code; set => code = value; }
-        public TagDTO[] Tags { get => tags; set => tags = value; }
+        public int UserId => userId;
+        public string Platform => platform;
+        public int ShardNumber => shardNumber;
+        public int SessionId => sessionId;
+        public int WorldId => worldId;
+        public string ConnectionId => connectionId;
+        public object Preferences => preferences;
+        public string Email => email;
+        public int? Code => code;
+        public TagDTO[] Tags => tags;
     }
 }

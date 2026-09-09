@@ -14,11 +14,11 @@ namespace Virtuademy.SDK.PlatformApi
         [SerializeField] private object preferences;
         [SerializeField] private TagDTO[] tags;
 
-        public int Id { get => id; set => id = value; }
-        public TagDTO[] Tags { get => tags; set => tags = value; }
-        public string Email { get => email; set => email = value; }
-        public object Preferences { get => preferences; set => preferences = value; }
-        public int? Code { get => code; set => code = value; }
+        public int Id => id;
+        public TagDTO[] Tags => tags;
+        public string Email => email;
+        public object Preferences => preferences;
+        public int? Code => code;
     }
 
 }

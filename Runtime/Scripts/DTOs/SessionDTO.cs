@@ -30,33 +30,33 @@ namespace Virtuademy.SDK.PlatformApi
         [SerializeField] private ESessionStatus status;
         [SerializeField] private object config;
 
-        public int Id { get => id; set => id = value; }
+        public int Id => id;
         public DateTime CreationDate => creationDate;
         public DateTime LastUpdate => lastUpdate;
-        public string Label { get => label; set => label = value; }
-        public int OwnerUserId { get => ownerUserId; set => ownerUserId = value; }
-        public int ExperienceId { get => experienceId; set => experienceId = value; }
+        public string Label => label;
+        public int OwnerUserId => ownerUserId;
+        public int ExperienceId => experienceId;
 
         /// <summary>
         /// This DateTime is in UTC time
         /// </summary>
-        public DateTime StartDate { get => startDate; set => startDate = value; }
+        public DateTime StartDate => startDate;
         /// <summary>
         /// This DateTime is in UTC time
         /// </summary>
-        public DateTime? EndDate { get => endDate; set => endDate = value; }
-        public int Capacity { get => capacity; set => capacity = value; }
-        public bool Multiplayer { get => multiplayer; set => multiplayer = value; }
-        public int[] UserIds { get => userIds; set => userIds = value; }
-        public object Template { get => template; set => template = value; }
-        public bool Unlimited { get => unlimited; set => unlimited = value; }
-        public TagDTO[] Tags { get => tags; set => tags = value; }
-        public int WorldId { get => worldId; set => worldId = value; }
-        public bool Lobby { get => lobby; set => lobby = value; }
-        public bool IsLiveNow { get => isLiveNow; set => isLiveNow = value; }
-        public ESessionAccessibility Accessibility { get => accessibility; set => accessibility = value; }
-        public ESessionStatus Status { get => status; set => status = value; }
-        public object Config { get => config; set => config = value; }
+        public DateTime? EndDate => endDate;
+        public int Capacity => capacity;
+        public bool Multiplayer => multiplayer;
+        public int[] UserIds => userIds;
+        public object Template => template;
+        public bool Unlimited => unlimited;
+        public TagDTO[] Tags => tags;
+        public int WorldId => worldId;
+        public bool Lobby => lobby;
+        public bool IsLiveNow => isLiveNow;
+        public ESessionAccessibility Accessibility => accessibility;
+        public ESessionStatus Status => status;
+        public object Config => config;
     }
 
     public enum ESessionAccessibility

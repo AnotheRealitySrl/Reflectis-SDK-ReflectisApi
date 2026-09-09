@@ -25,7 +25,7 @@ namespace Virtuademy.SDK.PlatformApi
         public DateTime LastUpdate => lastUpdate;
         public string Label => label;
         public string Note => note;
-        public string ThumbnailUri { get => thumbnailUri; set => thumbnailUri = value; }
+        public string ThumbnailUri => thumbnailUri;
         public EStatusOption Status => status;
         public bool VisibleByAnonymous => visibleByAnonymous;
         public EVisibilityOption VisibilityOption => visibilityOption;
