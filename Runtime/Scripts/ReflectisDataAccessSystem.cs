@@ -4,6 +4,7 @@ using Virtuademy.SDK.Core.ApiSystem;
 using Virtuademy.SDK.Core.SystemFramework;
 using Virtuademy.SDK.Core.Utilities;
 using Virtuademy.SDK.Http;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -17,6 +18,55 @@ namespace Virtuademy.SDK.PlatformApi
     [CreateAssetMenu(menuName = "AnotheReality/Systems/ReflectisDataAccessSystem", fileName = "ReflectisDataAccessSystemConfig")]
     public class ReflectisDataAccessSystem : ApiSystemBase
     {
+        #region Reaching this client
+
+        private static ReflectisDataAccessSystem installed;
+
+        /// <summary>Whether an application has installed a client.</summary>
+        public static bool IsInstalled => installed != null;
+
+        /// <summary>
+        /// The platform client. Every caller should reach it through here.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This exists so callers stop naming <c>SM</c>. The class is still a
+        /// <c>ScriptableObject</c> system today, so with nothing installed this falls back to
+        /// resolving one through the framework — which is what makes the migration safe to do a
+        /// few call sites at a time: every intermediate state compiles and behaves identically.
+        /// </para>
+        /// <para>
+        /// The fallback is <b>not cached</b>. The framework re-creates its systems, and a static
+        /// field holding yesterday's instance is the kind of bug that survives a scene load and
+        /// surfaces somewhere unrelated.
+        /// </para>
+        /// <para>
+        /// When the last caller has moved, this type stops deriving from the system base — two
+        /// lines, measured — the fallback goes, and <see cref="Install"/> becomes the only way in.
+        /// That is the step that lets this package stop referencing <c>Virtuademy.SDK.Core</c>,
+        /// which is what an external app needs and cannot have today.
+        /// </para>
+        /// </remarks>
+        /// <exception cref="InvalidOperationException">
+        /// No client is installed and none is registered with the framework either.
+        /// </exception>
+        public static ReflectisDataAccessSystem Current
+            => installed
+               ?? SM.GetSystem<ReflectisDataAccessSystem>()
+               ?? throw new InvalidOperationException(
+                   "No platform client is available. An application installs one at startup; " +
+                   "while this type is still a system, one registered with the framework is used " +
+                   "instead. Check ReflectisDataAccessSystem.IsInstalled if this code can run " +
+                   "outside a running application.");
+
+        /// <summary>Registers the client. Called once, by the application.</summary>
+        public static void Install(ReflectisDataAccessSystem client)
+        {
+            installed = client ? client : throw new ArgumentNullException(nameof(client));
+        }
+
+        #endregion
+
         /// <summary>
         /// Opts this system into endpoint discovery: its base URL is resolved from
         /// the platform record for the platform REST API rather than from the value serialized into
