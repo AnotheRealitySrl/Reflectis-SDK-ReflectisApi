@@ -15,7 +15,7 @@ using Virtuademy.SDK.Core.Authentication;
 
 namespace Virtuademy.SDK.PlatformApi
 {
-    [CreateAssetMenu(menuName = "AnotheReality/Systems/ReflectisDataAccessSystem", fileName = "ReflectisDataAccessSystemConfig")]
+    [CreateAssetMenu(menuName = "Virtuademy/Systems/ReflectisDataAccessSystem", fileName = "ReflectisDataAccessSystemConfig")]
     public class ReflectisDataAccessSystem : ApiSystemBase
     {
         #region Reaching this client
