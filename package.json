@@ -1,6 +1,6 @@
 {
-  "name": "com.anotherealitysrl.virtuademy-sdk-platformapi",
-  "displayName": "Virtuademy-SDK-PlatformApi",
+  "name": "com.anotherealitysrl.virtuademy-sdk-library",
+  "displayName": "Virtuademy-SDK-Library",
   "version": "2.1.0",
   "unity": "2020.1",
   "description": "The platform's HTTP client: the endpoints, and the projection from the wire types onto the platform contracts. Not installed by creators.",

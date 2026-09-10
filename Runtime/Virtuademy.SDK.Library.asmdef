@@ -1,5 +1,5 @@
 {
-    "name": "Virtuademy.SDK.PlatformApi",
+    "name": "Virtuademy.SDK.Library",
     "rootNamespace": "Virtuademy.SDK.PlatformApi",
     "references": [
         "GUID:ab59f74e483e1ee4595bfefea56493f2",
