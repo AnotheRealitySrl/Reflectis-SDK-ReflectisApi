@@ -3,7 +3,7 @@
   "displayName": "Virtuademy-SDK-PlatformApi",
   "version": "2.1.0",
   "unity": "2020.1",
-  "description": "Reflectis Reflectis API module",
+  "description": "The platform's HTTP client: the endpoints, and the projection from the wire types onto the platform contracts. Not installed by creators.",
   "keywords": [
     "unity"
   ],
@@ -13,6 +13,7 @@
     "url": "https://github.com/AnotheRealitySrl/Virtuademy-SDK-PlatformApi.git"
   },
   "dependencies": {
+    "com.anotherealitysrl.virtuademy-sdk-interface": "0.2.0",
     "com.unity.nuget.newtonsoft-json": "3.2.1"
   }
 }
