@@ -11,5 +11,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/AnotheRealitySrl/Virtuademy-SDK-PlatformApi.git"
+  },
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
   }
 }
