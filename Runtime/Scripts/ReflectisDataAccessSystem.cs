@@ -176,7 +176,6 @@ namespace Virtuademy.SDK.PlatformApi
             return new ApiResponseArray<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text, totalCount);
         }
 
-
         public async Task<ApiResponse<FolderContentDTO>> GetFolderContent(int worldId, int folderId, string filterExtensions = null, bool? buildSasContentUrl = null, bool? buildSasThumbnailUrl = null, int startItem = 1, int pageSize = 50, string order = "label")
         {
             Dictionary<string, string> queryParams = new()
@@ -354,39 +353,6 @@ namespace Virtuademy.SDK.PlatformApi
 
         #endregion
 
-        #region Enviroments
-
-        public async Task<ApiResponseArray<EnvironmentDTO>> GetEnvironments(int worldId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/environments");
-            await request.SendWebRequest();
-
-            return new ApiResponseArray<EnvironmentDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        // The interpreted assembly the environment needs, or a null Content when it has
-        // none: the API answers 204 with an empty body, which is the normal case and must
-        // not read as a failure.
-        public async Task<ApiResponse<EnvironmentDllDTO>> GetEnvironmentDll(int worldId, int environmentId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/environments/{environmentId}/environment-dll");
-            await request.SendWebRequest();
-
-            return new ApiResponse<EnvironmentDllDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        // Raw bytes out of the environment storage reader, for paths that come from an API
-        // record rather than from a URL the client composed. The endpoint redirects to a
-        // short-lived SAS link on blob deployments; UnityWebRequest follows it.
-        public async Task<byte[]> DownloadEnvironmentFile(string storageRelativePath)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"environments/download/{storageRelativePath}");
-            await request.SendWebRequest();
-
-            return request.result == UnityWebRequest.Result.Success ? request.downloadHandler.data : null;
-        }
-
-        #endregion
 
         #region Npcs
 
@@ -416,75 +382,11 @@ namespace Virtuademy.SDK.PlatformApi
         #endregion
 
         #region Experience
-        public async Task<ApiResponseArray<ExperienceDTO>> GetWorldExperiences(int worldId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/experiences");
-            await request.SendWebRequest();
-
-            return new ApiResponseArray<ExperienceDTO>(request.responseCode, request.error,/* JsonConvert.SerializeObject(experiences)*/ request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponseArray<ExperienceDTO>> GetMyExperiences(int worldId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/experiences/my");
-            await request.SendWebRequest();
-            return new ApiResponseArray<ExperienceDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
         public async Task<ApiResponse<ExperienceDTO>> GetExperience(int worldId, int experienceId)
         {
             using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/experiences/{experienceId}");
             await request.SendWebRequest();
             return new ApiResponse<ExperienceDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-
-        public async Task<ApiResponse> DeleteExperience(int worldId, int expId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbDELETE, $"worlds/{worldId}/experiences/{expId}");
-            await request.SendWebRequest();
-
-            return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
-        }
-        public async Task<ApiResponse<ExperienceDTO>> DuplicateExperience(int worldId, int expId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/experiences/authored/{expId}/duplicate");
-            await request.SendWebRequest();
-            return new ApiResponse<ExperienceDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-        public async Task<ApiResponse<ExperienceDTO>> UpdateExperience(int worldId, ExperienceDTO exp)
-        {
-            List<IMultipartFormSection> formDataSections = new List<IMultipartFormSection>();
-            if (!string.IsNullOrEmpty(exp.Label))
-            {
-                formDataSections.Add(new MultipartFormDataSection("label", exp.Label));
-            }
-            if (!string.IsNullOrEmpty(exp.Description))
-            {
-                formDataSections.Add(new MultipartFormDataSection("description", exp.Description));
-            }
-            if (exp.Tags != null && exp.Tags.Length > 0)
-            {
-                string tagIds = "";
-                foreach (var tag in exp.Tags)
-                {
-                    tagIds += tag.Id + ",";
-                }
-                formDataSections.Add(new MultipartFormDataSection("tagIds", tagIds));
-            }
-
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPUT, $"worlds/{worldId}/experiences/{exp.Id}/metadata", requestBodyType: HttpHelper.ERequestBodyType.MultipartFormData, body: formDataSections);
-
-            await request.SendWebRequest();
-
-            return new ApiResponse<ExperienceDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse> ToggleExperienceStatus(int worldId, int expId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/experiences/{expId}/togglestatus");
-            await request.SendWebRequest();
-            return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
         }
 
         #endregion
@@ -517,7 +419,6 @@ namespace Virtuademy.SDK.PlatformApi
             return new ApiResponseArray<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
-
         public async Task<ApiResponse<SessionDTO>> DeleteSession(int worldId, int eventId)
         {
             using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbDELETE, $"worlds/{worldId}/sessions/{eventId}");
@@ -549,97 +450,6 @@ namespace Virtuademy.SDK.PlatformApi
             return new ApiResponse<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
-        public async Task<ApiResponse> ShareExperienceAssets(int worldId, int experienceId, List<int> assetsId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/experiences/{experienceId}/assets/share", body: JsonConvert.SerializeObject(assetsId));
-            await request.SendWebRequest();
-
-            return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse> UpdateExperienceSaveData(int worldId, int eventId, object assetData)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPUT, $"worlds/{worldId}/sessions/{eventId}/experienceConfig", body: JsonConvert.SerializeObject(assetData));
-            await request.SendWebRequest();
-
-            return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
-        }
-        public async Task<ApiResponse> UpdateSessionSaveData(int worldId, int sessionId, object assetData)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPUT, $"worlds/{worldId}/sessions/{sessionId}/sessionConfig", body: JsonConvert.SerializeObject(assetData));
-            await request.SendWebRequest();
-
-            return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse> ResetSessionSaveData(int worldId, int sessionId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbDELETE, $"worlds/{worldId}/sessions/{sessionId}/sessionConfig");
-            await request.SendWebRequest();
-
-            return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
-        }
-        public async Task<ApiResponse<ExperienceDTO>> CreateAuthoredExperience(int worldId, NewExperienceDTO newExperienceDTO)
-        {
-            // 1. Create a list to hold all your multipart form sections
-            List<IMultipartFormSection> formDataSections = new List<IMultipartFormSection>();
-
-            // 2. Add simple string and integer fields using MultipartFormDataSection
-            if (!string.IsNullOrEmpty(newExperienceDTO.Label))
-            {
-                formDataSections.Add(new MultipartFormDataSection("label", newExperienceDTO.Label));
-            }
-            if (!string.IsNullOrEmpty(newExperienceDTO.Description))
-            {
-                formDataSections.Add(new MultipartFormDataSection("description", newExperienceDTO.Description));
-            }
-            formDataSections.Add(new MultipartFormDataSection("spotlight", newExperienceDTO.Spotlight.ToString())); // Convert bool to string
-            formDataSections.Add(new MultipartFormDataSection("environmentId", newExperienceDTO.EnvironmentId.ToString()));
-            formDataSections.Add(new MultipartFormDataSection("status", newExperienceDTO.Status.ToString())); // Convert enum to string
-
-            // Handle nullable ParentId
-            if (newExperienceDTO.ParentId.HasValue)
-            {
-                formDataSections.Add(new MultipartFormDataSection("parentId", newExperienceDTO.ParentId.Value.ToString()));
-            }
-
-            if (newExperienceDTO.Tags != null && newExperienceDTO.Tags.Length > 0)
-            {
-                string tagIds = "";
-                foreach (var tagId in newExperienceDTO.Tags)
-                {
-                    tagIds += tagId + ",";
-                }
-                formDataSections.Add(new MultipartFormDataSection("tagIds", tagIds));
-            }
-
-            if (newExperienceDTO.Config != null)
-            {
-                formDataSections.Add(new MultipartFormDataSection("config", JsonConvert.SerializeObject(newExperienceDTO.Config)));
-            }
-
-            // 3. Call BuildRequest with the correct ERequestBodyType and the list of sections
-            using UnityWebRequest request = await BuildRequest(
-                UnityWebRequest.kHttpVerbPOST,
-                $"worlds/{worldId}/experiences/authored",
-                requestBodyType: HttpHelper.ERequestBodyType.MultipartFormData, // Specify the new enum value
-                body: formDataSections // Pass the list of IMultipartFormSection as the body
-            );
-
-            // 4. Send the request and process the response
-            await request.SendWebRequest();
-
-            return new ApiResponse<ExperienceDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse> UpdateEventInvitedUsers(int worldId, int eventId, UsersInvitationDTO usersInvitationPostDTO)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/sessions/{eventId}/users", body: JsonConvert.SerializeObject(usersInvitationPostDTO));
-            await request.SendWebRequest();
-
-            return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
         #endregion
 
         #region Schedule
@@ -654,17 +464,6 @@ namespace Virtuademy.SDK.PlatformApi
 
         #endregion
 
-        #region Keys
-
-        public async Task<ApiResponse<KeysDTO>> GetKeys()
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"keys");
-            await request.SendWebRequest();
-
-            return new ApiResponse<KeysDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        #endregion
 
         #region Permissions
 
@@ -695,7 +494,6 @@ namespace Virtuademy.SDK.PlatformApi
         #endregion
 
         #region Tags
-
 
         public async Task<ApiResponseArray<TagDTO>> GetUsersTags(int worldId)
         {
@@ -756,14 +554,6 @@ namespace Virtuademy.SDK.PlatformApi
             return new ApiResponseArray<WorldDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
-        public async Task<ApiResponse<Dictionary<int, int?>>> GetWorldLimits()
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/user/limits");
-            await request.SendWebRequest();
-
-            return new ApiResponse<Dictionary<int, int?>>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
         public async Task<ApiResponse<WorldDTO>> GetWorld(int worldId)
         {
             using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}");
@@ -803,13 +593,6 @@ namespace Virtuademy.SDK.PlatformApi
             await request.SendWebRequest();
 
             return new ApiResponse<WorldConfigDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<ExperienceDTO>> GetDefaultExperience(int worldId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/experiences/default");
-            await request.SendWebRequest();
-            return new ApiResponse<ExperienceDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
         #endregion
