@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-namespace Virtuademy.SDK.PlatformApi
+namespace Virtuademy.SDK.ApiData
 {
     /// <summary>
     /// The one projection the platform context still needs.

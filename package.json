@@ -13,7 +13,9 @@
     "url": "https://github.com/AnotheRealitySrl/Virtuademy-SDK-PlatformApi.git"
   },
   "dependencies": {
-    "com.anotherealitysrl.virtuademy-sdk-interface": "0.2.0",
+    "com.anotherealitysrl.spacs-utility": "1.0.0",
+    "com.anotherealitysrl.virtuademy-sdk-core": "0.3.0",
+    "com.anotherealitysrl.virtuademy-systemcore": "16.0.0",
     "com.unity.nuget.newtonsoft-json": "3.2.1"
   }
 }

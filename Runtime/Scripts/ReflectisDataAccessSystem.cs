@@ -13,7 +13,7 @@ using UnityEngine.Networking;
 
 using Virtuademy.SDK.Core.Authentication;
 
-namespace Virtuademy.SDK.PlatformApi
+namespace Virtuademy.SDK.ApiData
 {
     [CreateAssetMenu(menuName = "Virtuademy/Systems/ReflectisDataAccessSystem", fileName = "ReflectisDataAccessSystemConfig")]
     public class ReflectisDataAccessSystem : ApiSystemBase
