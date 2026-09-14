@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 
 using Virtuademy.SDK.Core.ApiSystem;
 using Virtuademy.SDK.Core.SystemFramework;
-using Virtuademy.SDK.Core.Utilities;
 using Virtuademy.SDK.Http;
 using System;
 using System.Collections.Generic;
@@ -13,6 +12,9 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 using Virtuademy.SDK.Core.Authentication;
+
+
+using SPACS.Utilities;
 
 namespace Virtuademy.SDK.ApiData
 {
