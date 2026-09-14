@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Added
+- **The wire DTOs live here now**, and so do the platform contracts. 48 DTO types moved in from
+  the contracts package, along with `IPlatformContext`, `IPlatformAuthentication` and the five
+  value types beside them — the whole of what used to be the `Virtuademy.SDK.Core` assembly.
+
+  They came here because this is where their implementation and their audience already were:
+  `PlatformContextProjection` is in this package, `PlatformContext` is in the realtime package
+  which references this one, and an external app developer installs this package. Every consumer
+  of the two retired assemblies sat at or below this one, so nothing changed direction.
+
+  The seventeen analytics types did **not** come: a creator authoring an xAPI statement in a
+  Visual Scripting graph needs them, and they now live in `Virtuademy.ScriptingApi`, which a
+  creator installs and this package does not have to be.
+
+  Namespaces are unchanged — `Virtuademy.SDK.ApiData` and `Virtuademy.SDK.Interface` — so every
+  `using` across the project still resolves; only the assembly behind them differs.
+
 The version in `package.json` is still 2.1.0; these entries have accumulated since it was set.
 
 ### Changed
