@@ -106,284 +106,6 @@ namespace Virtuademy.SDK.ApiData
 
         #endregion
 
-        #region Assets
-
-        public async Task<ApiResponse<AssetDTO>> GetAssetDetails(int worldId, int assetId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/assets/{assetId}");
-            await request.SendWebRequest();
-
-            return new ApiResponse<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponseArray<FolderDTO>> GetWorldFolders(int worldId, string order = "name", bool? includeDetails = null, int currentPage = 1, int pageSize = 8)
-        {
-            Dictionary<string, string> queryParams = new()
-            {
-                { "currentPage" , currentPage.ToString()},
-                { "pageSize" , pageSize.ToString()},
-                { "order" , order},
-            };
-            if (includeDetails != null)
-            {
-                queryParams.Add("includeDetails", includeDetails.ToString().ToLower());
-            }
-
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/assets/folders", queryParams: queryParams);
-            await request.SendWebRequest();
-
-            int totalCount = 0;
-            if (request.GetResponseHeaders().TryGetValue("x-total-count", out var count))
-            {
-                totalCount = int.Parse(count.ToString());
-            }
-
-            return new ApiResponseArray<FolderDTO>(request.responseCode, request.error, request.downloadHandler.text, totalCount);
-        }
-
-        public async Task<ApiResponseArray<AssetDTO>> GetWorldAssets(int worldId, bool? buildSasContentUrl = null, bool? buildSasThumbnailUrl = null, int startItem = 1, int pageSize = 2000000000, string order = "label", string filterExtensions = null, string filterFolder = null)
-        {
-            Dictionary<string, string> queryParams = new()
-            {
-                { "startItem" , startItem.ToString()},
-                { "pageSize" , pageSize.ToString()},
-                { "order" , order}
-            };
-
-            if (buildSasContentUrl != null)
-            {
-                queryParams.Add("buildSasContentUrl", buildSasContentUrl.ToString().ToLower());
-            }
-            if (buildSasThumbnailUrl != null)
-            {
-                queryParams.Add("buildSasThumbnailUrl", buildSasThumbnailUrl.ToString().ToLower());
-            }
-            if (filterExtensions != null)
-            {
-                queryParams.Add("filterExtensions", filterExtensions);
-            }
-            if (filterFolder != null)
-            {
-                queryParams.Add("filterFolder", filterFolder);
-            }
-
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/assets", queryParams: queryParams);
-            await request.SendWebRequest();
-
-            int totalCount = 0;
-            if (request.GetResponseHeaders().TryGetValue("x-total-count", out var count))
-            {
-                totalCount = int.Parse(count.ToString());
-            }
-
-            return new ApiResponseArray<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text, totalCount);
-        }
-
-        public async Task<ApiResponse<FolderContentDTO>> GetFolderContent(int worldId, int folderId, string filterExtensions = null, bool? buildSasContentUrl = null, bool? buildSasThumbnailUrl = null, int startItem = 1, int pageSize = 50, string order = "label")
-        {
-            Dictionary<string, string> queryParams = new()
-            {
-                { "startItem" , startItem.ToString()},
-                { "pageSize" , pageSize.ToString()},
-                { "order" , order}
-            };
-
-            if (buildSasContentUrl != null)
-            {
-                queryParams.Add("buildSasContentUrl", buildSasContentUrl.ToString().ToLower());
-            }
-            if (buildSasThumbnailUrl != null)
-            {
-                queryParams.Add("buildSasThumbnailUrl", buildSasThumbnailUrl.ToString().ToLower());
-            }
-            if (filterExtensions != null)
-            {
-                queryParams.Add("filterExtensions", filterExtensions);
-            }
-
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/folders/{folderId}/content", queryParams: queryParams);
-            await request.SendWebRequest();
-
-            return new ApiResponse<FolderContentDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponseSearch<AssetDTO>> GetFolderAssets(int worldId, int folderId, string filterExtensions = null, bool? buildSasContentUrl = null, bool? buildSasThumbnailUrl = null, int startItem = 1, int pageSize = 50, string order = "label")
-        {
-            Dictionary<string, string> queryParams = new()
-            {
-                { "startItem" , startItem.ToString()},
-                { "pageSize" , pageSize.ToString()},
-                { "order" , order}
-            };
-
-            if (buildSasContentUrl != null)
-            {
-                queryParams.Add("buildSasContentUrl", buildSasContentUrl.ToString().ToLower());
-            }
-            if (buildSasThumbnailUrl != null)
-            {
-                queryParams.Add("buildSasThumbnailUrl", buildSasThumbnailUrl.ToString().ToLower());
-            }
-            if (filterExtensions != null)
-            {
-                queryParams.Add("filterExtensions", filterExtensions);
-            }
-
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/folders/{folderId}/assets", queryParams: queryParams);
-            await request.SendWebRequest();
-
-            return new ApiResponseSearch<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        //API details at https://sharing.clickup.com/t/h/c/2525524/REFL-2324/QPORG0ADY0HDK20
-        public async Task<ApiResponseArray<AssetDTO>> GetSessionAssets(int worldId, int sessionId, int startItem, int pageSize, string filterExtensions = null, string filterFolder = null, string order = "label")
-        {
-            Dictionary<string, string> queryParams = new()
-        {
-            { "startItem" , startItem.ToString()},
-            { "pageSize" , pageSize.ToString() },
-            { "order", order },
-            { "includeAllVisible", true.ToString() },
-            { "buildSasContentUrl", false.ToString() },
-            { "buildSasThumbnailUrl", true.ToString() }
-        };
-            if (filterExtensions != null)
-            {
-                queryParams.Add("filterExtensions", filterExtensions);
-            }
-            if (filterFolder != null)
-            {
-                queryParams.Add("filterFolder", filterFolder);
-            }
-
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/sessions/assets", queryParams, allowEmptyQueryValues: true);
-            await request.SendWebRequest();
-            int totalCount = 0;
-            if (request.GetResponseHeaders().TryGetValue("x-total-count", out var count))
-            {
-                totalCount = int.Parse(count.ToString());
-            }
-            return new ApiResponseArray<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text, totalCount);
-        }
-
-        //API details at https://sharing.clickup.com/t/h/c/2525524/REFL-2324/QPORG0ADY0HDK20
-        public async Task<ApiResponseArray<FolderDTO>> GetSessionAssetsFolders(int worldId, int sessionId, int startItem, int pageSize, string filterExtensions = null, string order = "name")
-        {
-            Dictionary<string, string> queryParams = new()
-        {
-            { "startItem" , startItem.ToString()},
-            { "pageSize" , pageSize.ToString() },
-            { "order", order },
-            { "includeAllVisible", true.ToString() },
-        };
-            if (filterExtensions != null)
-            {
-                queryParams.Add("filterExtensions", filterExtensions);
-            }
-
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/sessions/assets/folders", queryParams);
-            await request.SendWebRequest();
-            int totalCount = 0;
-            if (request.GetResponseHeaders().TryGetValue("x-total-count", out var count))
-            {
-                totalCount = int.Parse(count.ToString());
-            }
-
-            return new ApiResponseArray<FolderDTO>(request.responseCode, request.error, request.downloadHandler.text, totalCount);
-        }
-
-        public async Task<ApiResponseArray<AssetDTO>> SearchAssets(int worldId, AssetSearchCriteria assetSearchCriteria, string order = "label", int startItem = 1, int pageSize = 2000000000)
-        {
-            Dictionary<string, string> queryParams = new()
-            {
-                { "startItem" , startItem.ToString()},
-                { "pageSize" , pageSize.ToString()},
-                { "order" , order},
-            };
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"search/assets/{worldId}", body: JsonConvert.SerializeObject(assetSearchCriteria), queryParams: queryParams);
-            await request.SendWebRequest();
-
-            return new ApiResponseArray<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<string>> DownloadAssetContent(int worldId, int? id = null, int? ts = null, int? sig = null)
-        {
-            Dictionary<string, string> queryParams = new()
-        {
-            { "id" , id.ToString()},
-            { "ts" , ts.ToString()},
-            { "sig" , sig.ToString()}
-        };
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/assets/downloads/contents", queryParams: queryParams);
-            await request.SendWebRequest();
-
-            return new ApiResponse<string>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<string>> DownloadAssetThumbnail(int worldId, int? id = null, int? ts = null, int? sig = null)
-        {
-            Dictionary<string, string> queryParams = new()
-        {
-            { "id" , id.ToString()},
-            { "ts" , ts.ToString()},
-            { "sig" , sig.ToString()}
-        };
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/assets/downloads/thumbnails", queryParams: queryParams);
-            await request.SendWebRequest();
-
-            return new ApiResponse<string>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<AssetDTO>> CreateNew3dAsset(int worldId, byte[] data, string label)
-        {
-            List<IMultipartFormSection> formDataSections = new List<IMultipartFormSection>();
-
-            string fileName = label + ".glb";
-            string mimeType = "application/octet-stream";
-
-            formDataSections.Add(new UnityEngine.Networking.MultipartFormFileSection("contentData", data, fileName, mimeType));
-
-            formDataSections.Add(new MultipartFormDataSection("metadata", "{ \"contextualMenuSettings\":{ \"contextualMenuOptions\":[\"ColorPicker\", \"Explodable\", \"NonProportionalScale\", \"LockTransform\"]},\"unscaledSize\":true,\"scaleFactor\":1}"));
-
-            formDataSections.Add(new MultipartFormDataSection("label", label));
-
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/assets", requestBodyType: HttpHelper.ERequestBodyType.MultipartFormData, body: formDataSections);
-
-            await request.SendWebRequest();
-
-            return new ApiResponse<AssetDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        #endregion
-
-
-        #region Npcs
-
-        // Runtime NPC list for the chatbot Tool picker: enabled NPCs visible in
-        // the world, alphabetical by label. modelUrl/thumbnailUrl are short-lived
-        // SAS links minted server-side per response.
-        public async Task<ApiResponseArray<NpcDTO>> GetNpcs(int worldId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/npcs");
-            await request.SendWebRequest();
-
-            return new ApiResponseArray<NpcDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        // Per-id refresh: the same NpcDTO as the list item, for one NPC, with
-        // freshly-minted SAS URLs — call this to re-mint an expired modelUrl/
-        // thumbnailUrl without re-pulling the whole list. Mirrors GetAssetDetails.
-        // Note the /runtime suffix: the bare /{id} is the Backoffice management getter.
-        public async Task<ApiResponse<NpcDTO>> GetNpcDetails(int worldId, int npcId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/npcs/{npcId}/runtime");
-            await request.SendWebRequest();
-
-            return new ApiResponse<NpcDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        #endregion
-
         #region Experience
         public async Task<ApiResponse<ExperienceDTO>> GetExperience(int worldId, int experienceId)
         {
@@ -404,31 +126,6 @@ namespace Virtuademy.SDK.ApiData
             return new ApiResponse<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
-        public async Task<ApiResponseArray<SessionDTO>> GetLiveSessions(int worldId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/sessions/livenow");
-            await request.SendWebRequest();
-            return new ApiResponseArray<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponseArray<SessionDTO>> GetMonthSessions(int worldId, int monthOffset)
-        {
-            Dictionary<string, string> queryParams = new()
-            {
-                { "monthOffset" , monthOffset.ToString()},
-            };
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/sessions/month", queryParams);
-            await request.SendWebRequest();
-            return new ApiResponseArray<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<SessionDTO>> DeleteSession(int worldId, int eventId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbDELETE, $"worlds/{worldId}/sessions/{eventId}");
-            await request.SendWebRequest();
-            return new ApiResponse<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
         public async Task<ApiResponse<SessionDTO>> GetSession(int worldId, int sessionId)
         {
             using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/sessions/{sessionId}");
@@ -437,36 +134,7 @@ namespace Virtuademy.SDK.ApiData
             return new ApiResponse<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
-        public async Task<ApiResponse<SessionDTO>> UpdateSessionMetadata(int worldId, int sessionId, NewSessionDTO eventChanges)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPUT, $"worlds/{worldId}/sessions/{sessionId}/metadata", body: JsonConvert.SerializeObject(eventChanges));
-            await request.SendWebRequest();
-
-            return new ApiResponse<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<SessionDTO>> ShareEventAsset(int worldId, int sessionId, int assetId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"worlds/{worldId}/sessions/{sessionId}/assets/{assetId}/share");
-            await request.SendWebRequest();
-
-            return new ApiResponse<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
         #endregion
-
-        #region Schedule
-
-        public async Task<ApiResponse<ScheduleDTO>> GetScheduleOfDayName(string dayName)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"schedule/{dayName}");
-            await request.SendWebRequest();
-
-            return new ApiResponse<ScheduleDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        #endregion
-
 
         #region Permissions
 
@@ -476,14 +144,6 @@ namespace Virtuademy.SDK.ApiData
             await request.SendWebRequest();
 
             return new ApiResponse<List<string>>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<PermissionDTO>> CreateEventPermissions(List<PermissionDTO> permissionPostDTO)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"sessions/permissions/multiple", body: JsonConvert.SerializeObject(permissionPostDTO));
-            await request.SendWebRequest();
-
-            return new ApiResponse<PermissionDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
         public async Task<ApiResponse<List<string>>> GetMyWorldPermissions(int worldId)
@@ -496,66 +156,7 @@ namespace Virtuademy.SDK.ApiData
 
         #endregion
 
-        #region Tags
-
-        public async Task<ApiResponseArray<TagDTO>> GetUsersTags(int worldId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/tags/all");
-            await request.SendWebRequest();
-
-            return new ApiResponseArray<TagDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponseArray<TagDTO>> GetContentTags(int worldId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/tags/content/all");
-            await request.SendWebRequest();
-
-            return new ApiResponseArray<TagDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponseSearch<TagDTO>> SearchTags(TagSearchCriteria tagSearchCriteria, string order, int currentPage = 1, int pageSize = 2000000000)
-        {
-            Dictionary<string, string> queryParams = new()
-        {
-            { "currentPage" , currentPage.ToString()},
-            { "pageSize" , pageSize.ToString()},
-            { "order" , order},
-        };
-            Debug.Log("tag search " + JsonConvert.SerializeObject(tagSearchCriteria));
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"search/tags", body: JsonConvert.SerializeObject(tagSearchCriteria), queryParams: queryParams);
-            await request.SendWebRequest();
-
-            return new ApiResponseSearch<TagDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponseArray<UserDTO>> GetUsersWithTag(int worldId, int tagId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/tags/{tagId}/taggedusers");
-            await request.SendWebRequest();
-
-            return new ApiResponseArray<UserDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponseArray<TagDTO>> GetUserTags(int worldId, int userId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/tags/user/{userId}");
-            await request.SendWebRequest();
-
-            return new ApiResponseArray<TagDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        #endregion
-
         #region Worlds
-
-        public async Task<ApiResponseArray<WorldDTO>> GetWorlds()
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds");
-            await request.SendWebRequest();
-
-            return new ApiResponseArray<WorldDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
 
         public async Task<ApiResponse<WorldDTO>> GetWorld(int worldId)
         {
@@ -588,14 +189,6 @@ namespace Virtuademy.SDK.ApiData
             await request.SendWebRequest();
 
             return new ApiResponseArray<ExternalAppPlacementDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
-        public async Task<ApiResponse<WorldConfigDTO>> GetWorldConfig(int worldId)
-        {
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbGET, $"worlds/{worldId}/config");
-            await request.SendWebRequest();
-
-            return new ApiResponse<WorldConfigDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
         #endregion
@@ -635,21 +228,6 @@ namespace Virtuademy.SDK.ApiData
             return new ApiResponse<UserDTO>(request.responseCode, request.error, request.downloadHandler.text);
         }
 
-        public async Task<ApiResponseSearch<UserDTO>> SearchUser(int worldId, UserSearchCriteria userSearchCriteria, string order, int currentPage = 1, int pageSize = 2000000000)
-        {
-            Dictionary<string, string> queryParams = new()
-            {
-                { "currentPage" , currentPage.ToString()},
-                { "pageSize" , pageSize.ToString()},
-                { "order" , order},
-            };
-            Debug.Log("user search " + JsonUtility.ToJson(userSearchCriteria));
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"search/users/{worldId}", body: JsonUtility.ToJson(userSearchCriteria), queryParams: queryParams);
-            await request.SendWebRequest();
-
-            return new ApiResponseSearch<UserDTO>(request.responseCode, request.error, request.downloadHandler.text);
-        }
-
         #endregion
 
         #region Experience Analytics
@@ -672,34 +250,6 @@ namespace Virtuademy.SDK.ApiData
                 return new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
             }
         }
-        #endregion
-
-        #region ErrorDiagnostic
-
-        public async Task CreateErrorDiagnostic(ErrorDiagnosticDTO errorDiagnostic)
-        {
-            Debug.LogError("New diagnostic: " + JsonConvert.SerializeObject(errorDiagnostic));
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"diagnostics",
-                body: JsonConvert.SerializeObject(errorDiagnostic), authentication: EAuthentication.Hmac);
-            await request.SendWebRequest();
-            var response = new ApiResponse<SessionDTO>(request.responseCode, request.error, request.downloadHandler.text);
-            Debug.Log("New diagnostic: " + JsonConvert.SerializeObject(response));
-        }
-
-        #endregion
-
-        #region TelemetryDiagnostics
-
-        public async Task CreateTelemetryData(TelemetryDTO telemetryDTO)
-        {
-            //Debug.LogError("New telemetry data: " + JsonConvert.SerializeObject(telemetryDTO));
-            using UnityWebRequest request = await BuildRequest(UnityWebRequest.kHttpVerbPOST, $"online/telemetry",
-            body: JsonConvert.SerializeObject(telemetryDTO));
-            await request.SendWebRequest();
-            var response = new ApiResponse(request.responseCode, request.error, request.downloadHandler.text);
-            //Debug.LogError("New telemetry dto: " + JsonConvert.SerializeObject(dto));
-        }
-
         #endregion
 
         #region Save Data
