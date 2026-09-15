@@ -1,9 +1,7 @@
-﻿using Virtuademy.ScriptingApi;
 using Newtonsoft.Json;
 
-using Virtuademy.SDK.Core.ApiSystem;
-using Virtuademy.SDK.Core.SystemFramework;
-using Virtuademy.SDK.Http;
+using SPACS.Utilities;
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,100 +9,72 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
-using Virtuademy.SDK.Core.Authentication;
-
-
-using SPACS.Utilities;
+using Virtuademy.ScriptingApi;
+using Virtuademy.SDK.Core.ApiSystem;
+using Virtuademy.SDK.Http;
 
 namespace Virtuademy.SDK.ApiData
 {
-    [CreateAssetMenu(menuName = "Virtuademy/Systems/ReflectisDataAccessSystem", fileName = "ReflectisDataAccessSystemConfig")]
-    public class ReflectisDataAccessSystem : ApiSystemBase
+    /// <summary>
+    /// The platform REST client, and the whole of what an external application may reach.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Sixteen endpoints: the app's own catalogue, the session it joins, who the user is, what
+    /// they may do, their own saved data, and what they report. The line was drawn from what
+    /// <c>IPlatformContext</c> actually needs rather than from what a client happened to have —
+    /// everything else went to the application's own client on 2026-09-15.
+    /// </para>
+    /// <para>
+    /// A plain class, and that is the point. It was a <c>ScriptableObject</c> system, which put
+    /// the platform's system framework in the dependency path of every application that wanted to
+    /// talk to the API. <c>ReflectisDataAccessSystem</c> is still that system, in the application
+    /// where it belongs, and it installs one of these at startup.
+    /// </para>
+    /// </remarks>
+    public class PlatformClient : ApiClientBase
     {
         #region Reaching this client
 
-        private static ReflectisDataAccessSystem installed;
+        private static PlatformClient installed;
 
         /// <summary>Whether an application has installed a client.</summary>
         public static bool IsInstalled => installed != null;
 
         /// <summary>
-        /// The platform client. Every caller should reach it through here.
+        /// The platform client. Every caller reaches it through here.
         /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This exists so callers stop naming <c>SM</c>. The class is still a
-        /// <c>ScriptableObject</c> system today, so with nothing installed this falls back to
-        /// resolving one through the framework — which is what makes the migration safe to do a
-        /// few call sites at a time: every intermediate state compiles and behaves identically.
-        /// </para>
-        /// <para>
-        /// The fallback is <b>not cached</b>. The framework re-creates its systems, and a static
-        /// field holding yesterday's instance is the kind of bug that survives a scene load and
-        /// surfaces somewhere unrelated.
-        /// </para>
-        /// <para>
-        /// When the last caller has moved, this type stops deriving from the system base — two
-        /// lines, measured — the fallback goes, and <see cref="Install"/> becomes the only way in.
-        /// That is the step that lets this package stop referencing <c>Virtuademy.SDK.Core</c>,
-        /// which is what an external app needs and cannot have today.
-        /// </para>
-        /// </remarks>
         /// <exception cref="InvalidOperationException">
-        /// No client is installed and none is registered with the framework either.
+        /// No client is installed. An application installs one at startup.
         /// </exception>
-        public static ReflectisDataAccessSystem Current
+        public static PlatformClient Current
             => installed
-               ?? SM.GetSystem<ReflectisDataAccessSystem>()
                ?? throw new InvalidOperationException(
-                   "No platform client is available. An application installs one at startup; " +
-                   "while this type is still a system, one registered with the framework is used " +
-                   "instead. Check ReflectisDataAccessSystem.IsInstalled if this code can run " +
-                   "outside a running application.");
+                   "No platform client is installed. An application installs one at startup; "
+                   + "check PlatformClient.IsInstalled if this code can run outside one.");
 
         /// <summary>Registers the client. Called once, by the application.</summary>
-        public static void Install(ReflectisDataAccessSystem client)
+        public static void Install(PlatformClient client)
         {
-            installed = client ? client : throw new ArgumentNullException(nameof(client));
+            installed = client ?? throw new ArgumentNullException(nameof(client));
         }
 
         #endregion
 
         /// <summary>
-        /// Opts this system into endpoint discovery: its base URL is resolved from
-        /// the platform record for the platform REST API rather than from the value serialized into
-        /// the build, falling back to that value when discovery has not answered.
-        /// See ADR 0024 in the meta-repo.
+        /// Opts this client into endpoint discovery: its base URL is resolved from the platform
+        /// record for the platform REST API rather than from the value serialized into the build,
+        /// falling back to that value when discovery has not answered. See ADR 0024.
         /// </summary>
         protected override string DiscoveryApiType => "Application";
 
-        #region Inspector info
-        [Header("Reflectis Data Access API Info")]
-        // ReflectisDataAccessSystem has no additional serialized fields beyond ApiSystemBase.
-        // CacheId is runtime-only state.
-        [System.NonSerialized] public int cacheId = -1;
-        #endregion
-        
-        #region Private stuff
-        private const string app = "Unity";
-        #endregion
+        /// <summary>Runtime-only, never serialized.</summary>
+        public int CacheId { get; set; } = -1;
 
-        #region Properties
         public string ApiVersion => apiConfig.ApiVersion;
-        public int CacheId { get { return cacheId; } set { cacheId = value; } }
-        #endregion
 
-        #region Overrides
-
-        public override async Task Init()
-        {
-            await base.Init();
-
-            //apiConfig = new AppIdentification(apiConfig.Credential,
-            //    "https://localhost:12026", apiConfig.ApiVersion);
-        }
-
-        #endregion
+        /// <summary>The client name the analytics endpoints report.</summary>
+        private const string app = "Unity";
 
         #region Experience
         public async Task<ApiResponse<ExperienceDTO>> GetExperience(int worldId, int experienceId)
