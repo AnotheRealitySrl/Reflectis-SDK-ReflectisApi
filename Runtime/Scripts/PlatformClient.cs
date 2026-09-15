@@ -38,22 +38,32 @@ namespace Virtuademy.SDK.ApiData
 
         private static PlatformClient installed;
 
-        /// <summary>Whether an application has installed a client.</summary>
-        public static bool IsInstalled => installed != null;
+        /// <summary>
+        /// Whether anybody has given this client an address to talk to. A client exists from the
+        /// first access; one that has not been configured cannot reach anything.
+        /// </summary>
+        public static bool IsConfigured => !string.IsNullOrEmpty(Current.ApiLabel);
 
         /// <summary>
         /// The platform client. Every caller reaches it through here.
         /// </summary>
-        /// <exception cref="InvalidOperationException">
-        /// No client is installed. An application installs one at startup.
-        /// </exception>
-        public static PlatformClient Current
-            => installed
-               ?? throw new InvalidOperationException(
-                   "No platform client is installed. An application installs one at startup; "
-                   + "check PlatformClient.IsInstalled if this code can run outside one.");
+        /// <remarks>
+        /// It creates itself rather than waiting to be installed, and that is not laziness: the
+        /// application's systems are registered first and initialised afterwards, in an order
+        /// nothing here controls, and more than one of them takes this reference in its own
+        /// <c>Init</c>. A client that only appeared once its own system had run would be missing
+        /// for whoever ran first — which is exactly the failure this replaced.
+        /// <para>
+        /// The instance is configured later, by the system that owns the connection. Until then it
+        /// has no address: see <see cref="IsConfigured"/>.
+        /// </para>
+        /// </remarks>
+        public static PlatformClient Current => installed ??= new PlatformClient();
 
-        /// <summary>Registers the client. Called once, by the application.</summary>
+        /// <summary>
+        /// Replaces the client. For an application that builds its own — an external one with no
+        /// platform system to configure it, or a test.
+        /// </summary>
         public static void Install(PlatformClient client)
         {
             installed = client ?? throw new ArgumentNullException(nameof(client));
