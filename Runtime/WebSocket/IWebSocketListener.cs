@@ -1,4 +1,4 @@
-namespace Virtuademy.SDK.Core.WebSocket
+namespace Virtuademy.SDK.WebSocket
 {
     public interface IWebSocketListener
     {

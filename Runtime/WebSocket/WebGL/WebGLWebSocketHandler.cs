@@ -1,5 +1,5 @@
 #if UNITY_WEBGL && !UNITY_EDITOR
-using Virtuademy.SDK.Core.WebSocket;
+using Virtuademy.SDK.WebSocket;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;

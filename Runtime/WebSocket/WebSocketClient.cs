@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 using UnityEngine;
 
-namespace Virtuademy.SDK.Core.WebSocket
+namespace Virtuademy.SDK.WebSocket
 {
     /// <summary>
     /// One connection per address, opened on demand and kept until somebody disconnects it.

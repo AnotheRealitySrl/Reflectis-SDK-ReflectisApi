@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Virtuademy.SDK.Core.WebSocket
+namespace Virtuademy.SDK.WebSocket
 {
     public interface IWebSocketSystem : ISystem
     {

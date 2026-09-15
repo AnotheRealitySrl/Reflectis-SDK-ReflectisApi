@@ -1,4 +1,4 @@
-using Virtuademy.SDK.Core.WebSocket;
+using Virtuademy.SDK.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Net.WebSockets;

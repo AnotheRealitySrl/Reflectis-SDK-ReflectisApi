@@ -1,6 +1,6 @@
 using System;
 
-namespace Virtuademy.SDK.Core.WebSocket
+namespace Virtuademy.SDK.WebSocket
 {
     public class BaseWebSocketListener : IWebSocketListener
     {
