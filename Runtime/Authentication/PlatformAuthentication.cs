@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 
 using Virtuademy.SDK.Core.ApiSystem;
+using Virtuademy.SDK.Core.Authentication;
 using Virtuademy.SDK.Http;
 using Virtuademy.SDK.Interface;
 using Virtuademy.SDK.TenantConfiguration;
@@ -90,6 +91,16 @@ namespace Virtuademy.SDK.ApiData
 
             return new PlatformAuthentication(profile, config.ApplicationUrl);
         }
+
+        /// <summary>
+        /// The token provider this login produced, for the other clients an application talks to.
+        /// </summary>
+        /// <remarks>
+        /// The profile client itself: the session is what the tokens are minted against, so the
+        /// thing holding the session is the thing that can refresh them. Hand it to a
+        /// <see cref=PlatformClient/> or a realtime one and their requests carry a bearer.
+        /// </remarks>
+        public ITokenProvider Tokens => profile;
 
         /// <inheritdoc />
         public bool IsAuthenticated { get; private set; }
