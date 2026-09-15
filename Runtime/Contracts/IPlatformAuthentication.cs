@@ -51,6 +51,18 @@ namespace Virtuademy.SDK.Interface
         /// </summary>
         Task CompleteLoginWithCode(string confirmationCode);
 
+        /// <summary>
+        /// Takes up a session that already exists, identified by its hash: the one the platform put
+        /// in this app's launch data, or one the app persisted itself.
+        /// </summary>
+        /// <remarks>
+        /// On the contract because it is the whole of the catalog path, and an app that could only
+        /// reach it through a concrete implementation could not be written against the contract at
+        /// all — which is what the contract is for. The precedence documented above applies here:
+        /// a hash that arrived with the launch is taken before a persisted one, always.
+        /// </remarks>
+        Task RestoreSession(string sessionHash);
+
         /// <summary>Ends the session and clears any persisted one.</summary>
         Task Logout();
 

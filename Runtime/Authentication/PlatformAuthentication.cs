@@ -145,11 +145,7 @@ namespace Virtuademy.SDK.ApiData
             await Establish(enabled.Content.Hash);
         }
 
-        /// <summary>
-        /// Takes up a session the application already has a hash for — one it persisted itself, or
-        /// one it was handed. Not part of the contract: an app launched from the catalog receives
-        /// its hash in the launch data, and this is the standalone equivalent.
-        /// </summary>
+        /// <inheritdoc />
         public Task RestoreSession(string sessionHash) => Establish(sessionHash);
 
         /// <inheritdoc />
