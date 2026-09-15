@@ -1,8 +1,10 @@
 using System;
 using System.Threading.Tasks;
 
+using Virtuademy.SDK.Core.ApiSystem;
 using Virtuademy.SDK.Http;
 using Virtuademy.SDK.Interface;
+using Virtuademy.SDK.TenantConfiguration;
 
 namespace Virtuademy.SDK.ApiData
 {
@@ -29,6 +31,13 @@ namespace Virtuademy.SDK.ApiData
     /// across runs is a policy decision, not a default to inherit, and an app that wants it can
     /// hold the hash itself and hand it to <see cref="RestoreSession"/>.
     /// </para>
+    /// <para>
+    /// <b>An application is configured from its tenant, exactly as the platform's own is.</b> A
+    /// developer receives the app's <c>AppConfig</c> — a credential and the address of the
+    /// configuration API — and <see cref="ForTenant"/> fetches the rest: which profile API to talk
+    /// to, at which version, and which web address the user opens. Nothing about a tenant is
+    /// compiled into an application, which is what lets the same build serve more than one.
+    /// </para>
     /// </remarks>
     public sealed class PlatformAuthentication : IPlatformAuthentication
     {
@@ -40,12 +49,46 @@ namespace Virtuademy.SDK.ApiData
         /// The tenant's web address, which the user opens to complete the login. It comes from the
         /// tenant configuration rather than from this assembly, because an implementation that
         /// composed it would be deciding which tenant the application belongs to.
+        /// <see cref="ForTenant"/> is the ordinary way in; this constructor is for a host that has
+        /// already resolved both by other means.
         /// </param>
         public PlatformAuthentication(ProfileClient profile, string applicationUrl)
         {
             this.profile = profile ?? throw new ArgumentNullException(nameof(profile));
             this.applicationUrl = applicationUrl
                                   ?? throw new ArgumentNullException(nameof(applicationUrl));
+        }
+
+        /// <summary>
+        /// Builds a login for the tenant a configuration client has already read.
+        /// </summary>
+        /// <remarks>
+        /// The client must have been initialised — this reads the tenant it fetched. The profile
+        /// client it builds carries the same credential the configuration one does, because they
+        /// are the same application talking to two APIs of the same tenant.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException">
+        /// The configuration client has no tenant yet, so there is nothing to configure from.
+        /// </exception>
+        public static async Task<PlatformAuthentication> ForTenant(TenantConfigurationClient tenant)
+        {
+            if (tenant == null)
+            {
+                throw new ArgumentNullException(nameof(tenant));
+            }
+
+            TenantConfig config = tenant.TenantConfiguration?.Config
+                ?? throw new InvalidOperationException(
+                    "The configuration client has not read a tenant. Call Init on it first: an "
+                    + "application learns which profile API to use from the tenant, not from its "
+                    + "own build.");
+
+            ProfileClient profile = new();
+            await profile.Init(new AppIdentification(tenant.AppIdentification.Credential,
+                                                     config.ProfileApiUrl,
+                                                     config.ProfileApiVersion));
+
+            return new PlatformAuthentication(profile, config.ApplicationUrl);
         }
 
         /// <inheritdoc />
