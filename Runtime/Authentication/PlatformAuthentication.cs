@@ -22,10 +22,13 @@ namespace Virtuademy.SDK.ApiData
     /// redirect, which is why it is the flow that works everywhere.
     /// </para>
     /// <para>
-    /// <b>The token completion is declared and refuses.</b> <see cref="CompleteLoginWithAccessToken"/>
-    /// belongs to a host that can read the redirect, and nothing in this implementation can —
-    /// throwing says so at the call site rather than in a log nobody reads. It is the next piece,
-    /// along with an identity provider.
+    /// <b>The token completion is for a host that can read the redirect</b> — a browser, a web
+    /// view, a mobile shell. It presents the identity provider's access token to
+    /// <c>my/sessions/bind</c>, the one endpoint of the login that is not HMAC, and the platform
+    /// answers with the same check code the web flow would have shown the user. From there the two
+    /// completions are one: the session is enabled with that code. What this implementation does
+    /// not do is <i>obtain</i> the token — that is the host's job, because only the host has a
+    /// browser.
     /// </para>
     /// <para>
     /// The session is not persisted here. Whether an application should keep a platform session
@@ -125,11 +128,35 @@ namespace Virtuademy.SDK.ApiData
         }
 
         /// <inheritdoc />
-        public Task CompleteLoginWithAccessToken(string accessToken)
-            => throw new NotSupportedException(
-                "This implementation completes a login with the confirmation code, not with an "
-                + "access token. The token completion needs a host that can read the login "
-                + "redirect — a browser, a web view, a mobile shell — and is not built yet.");
+        /// <remarks>
+        /// Two calls, because binding answers with the check code rather than with the session:
+        /// the token says who the user is, and enabling with the code it hands back is the same
+        /// step the other completion takes. The host never sees the code.
+        /// </remarks>
+        public async Task CompleteLoginWithAccessToken(string accessToken)
+        {
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                throw new ArgumentException("An access token is required.", nameof(accessToken));
+            }
+
+            ApiResponse<PlatformSession> bound = await profile.BindSession(accessToken);
+
+            if (!bound.IsSuccess || bound.Content == null)
+            {
+                throw new InvalidOperationException(
+                    $"The access token was refused: {bound.StatusCode} {bound.ReasonPhrase}.");
+            }
+
+            if (string.IsNullOrEmpty(bound.Content.CheckCode))
+            {
+                throw new InvalidOperationException(
+                    "The session was bound but came back without a check code, so it cannot be "
+                    + "enabled. Nothing is signed in.");
+            }
+
+            await CompleteLoginWithCode(bound.Content.CheckCode);
+        }
 
         /// <inheritdoc />
         public async Task CompleteLoginWithCode(string confirmationCode)

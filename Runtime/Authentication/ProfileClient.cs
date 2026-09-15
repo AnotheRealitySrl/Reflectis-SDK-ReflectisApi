@@ -81,6 +81,54 @@ namespace Virtuademy.SDK.ApiData
         }
 
         /// <summary>
+        /// Binds the pending session to the user an identity-provider access token names.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The other way to finish a login, and the only endpoint of the six that is not HMAC: the
+        /// point of it is precisely that the caller presents a user token rather than the
+        /// application's credential. A host that can observe the sign-in redirect — a browser, a
+        /// web view, a mobile shell — has such a token; a headset does not, which is why the code
+        /// flow exists beside this one.
+        /// </para>
+        /// <para>
+        /// It answers with the same check code the web flow would have shown the user, so the two
+        /// completions converge: what the user types in one, the host is handed in the other, and
+        /// the session is enabled the same way from there.
+        /// </para>
+        /// </remarks>
+        public async Task<ApiResponse<PlatformSession>> BindSession(string accessToken)
+        {
+            if (string.IsNullOrEmpty(Session?.Identifier))
+            {
+                return new ApiResponse<PlatformSession>(
+                    400, $"No pending session — call {nameof(BeginSession)} first.", string.Empty);
+            }
+
+            Dictionary<string, string> queryParams = new()
+            {
+                { "identifier", Session.Identifier },
+            };
+
+            // The token goes on by hand, with authentication off. EAuthentication.Bearer means
+            // "the platform token this client holds for this API", which is what a login produces
+            // and therefore cannot be what completes one — the token here is the identity
+            // provider's, and the client has nothing of its own yet.
+            Dictionary<string, string> headers = new()
+            {
+                { "Authorization", $"Bearer {accessToken}" },
+            };
+
+            using UnityWebRequest request = await BuildRequest(
+                UnityWebRequest.kHttpVerbPOST, "my/sessions/bind", queryParams,
+                authentication: EAuthentication.None, additionalHeaders: headers);
+            await request.SendWebRequest();
+
+            return new ApiResponse<PlatformSession>(request.responseCode, request.error,
+                                                    request.downloadHandler.text);
+        }
+
+        /// <summary>
         /// Reads back the session a hash names. This is what turns a persisted or handed-over hash
         /// into a session, and what says whether it is still alive.
         /// </summary>
