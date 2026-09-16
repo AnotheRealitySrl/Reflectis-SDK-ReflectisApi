@@ -104,7 +104,18 @@ namespace Virtuademy.SDK.ApiData
             Application.deepLinkActivated += OnDeepLink;
 
             Debug.Log($"[{nameof(DeepLinkRedirect)}] waiting for {RedirectUri} — the provider must "
-                      + "have this exact address registered for this client.");
+                      + "have this exact address registered for this client, under its mobile and "
+                      + "desktop redirect URIs.");
+
+#if UNITY_IOS && !UNITY_EDITOR
+            // Android gets its intent filter from the build step that claims the launch scheme;
+            // iOS has no equivalent, and an undeclared scheme is not a failure on iOS — the OS
+            // simply never delivers, so this would wait forever with nothing to read. Said once,
+            // here, because the alternative is discovering it as a login that hangs.
+            Debug.LogWarning($"[{nameof(DeepLinkRedirect)}] on iOS the scheme has to be declared "
+                             + "in CFBundleURLTypes, and nothing in this package does that yet. "
+                             + "Without it the redirect is never delivered and this waits forever.");
+#endif
         }
 
         /// <inheritdoc />
