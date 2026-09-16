@@ -28,7 +28,7 @@ namespace Virtuademy.SDK.ApiData
     /// between.
     /// </para>
     /// </remarks>
-    public sealed class LoopbackRedirect : IDisposable
+    public sealed class LoopbackRedirect : IRedirectReceiver
     {
         private readonly HttpListener listener;
 
@@ -49,6 +49,13 @@ namespace Virtuademy.SDK.ApiData
             listener = new HttpListener();
             listener.Prefixes.Add(RedirectUri);
             listener.Start();
+
+            // Said out loud because the failure this catches is invisible otherwise: the browser
+            // comes back to an address nobody is holding and shows "cannot reach localhost", with
+            // no way to tell whether the port moved, the listener died, or the provider sent the
+            // user somewhere else entirely.
+            Debug.Log($"[{nameof(LoopbackRedirect)}] listening on {RedirectUri} — the provider "
+                      + "must send the user back to exactly this address, this port included.");
         }
 
         /// <summary>The port in use, once one has been settled.</summary>
@@ -56,8 +63,10 @@ namespace Virtuademy.SDK.ApiData
 
         /// <summary>
         /// The address to give the provider. It carries the port, and the provider matches a
-        /// loopback redirect without it.
+        /// loopback redirect without it — measured against this tenant's Azure B2C, which accepts
+        /// <c>http://localhost</c> on any port and refuses <c>127.0.0.1</c> outright.
         /// </summary>
+        /// <inheritdoc />
         public string RedirectUri { get; }
 
         /// <summary>
@@ -69,9 +78,17 @@ namespace Virtuademy.SDK.ApiData
         /// the browser at that moment, and without a page saying so they have no way to know the
         /// application is waiting for them.
         /// </remarks>
-        public async Task<string> WaitForRedirect(string message = null)
+        /// <inheritdoc cref="IRedirectReceiver.WaitForRedirect" />
+        public Task<string> WaitForRedirect() => WaitForRedirect(null);
+
+        /// <param name="message">What the browser is left showing. See the remarks.</param>
+        public async Task<string> WaitForRedirect(string message)
         {
             HttpListenerContext context = await listener.GetContextAsync();
+
+            Debug.Log($"[{nameof(LoopbackRedirect)}] the browser came back to "
+                      + $"{context.Request.Url?.GetLeftPart(UriPartial.Path)} with "
+                      + $"{context.Request.Url?.Query?.Length ?? 0} characters of query.");
 
             string body =
                 "<!doctype html><meta charset=\"utf-8\">"
@@ -93,6 +110,13 @@ namespace Virtuademy.SDK.ApiData
         {
             try
             {
+                // Closing while the browser is still out is what turns a slow sign-in into a lost
+                // redirect, so it is worth knowing when it happens.
+                if (listener != null && listener.IsListening)
+                {
+                    Debug.Log($"[{nameof(LoopbackRedirect)}] {RedirectUri} released.");
+                }
+
                 listener?.Close();
             }
             catch (Exception e)
